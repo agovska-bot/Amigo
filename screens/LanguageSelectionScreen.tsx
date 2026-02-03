@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Language } from '../types';
+import AmigoMascot from '../components/AmigoMascot';
 
 const WelcomeScreen: React.FC = () => {
   const { setLanguage, setUserName, setBirthDate, language: currentLang } = useAppContext();
@@ -44,16 +45,12 @@ const WelcomeScreen: React.FC = () => {
 
   return (
     <div className="relative min-h-screen w-full bg-white flex flex-col items-center justify-center p-6 overflow-hidden">
-      {/* Decorative background element */}
       <div className="fixed top-[-10%] left-[-20%] w-[50rem] h-[50rem] bg-teal-500/10 rounded-full filter blur-[120px] pointer-events-none"></div>
       
       <div className="w-full max-w-md flex flex-col items-center animate-fadeIn relative z-10">
-        {/* Large Mariachi Mascot Welcome */}
-        <img 
-            src="/amigo-logo.png" 
-            alt="Amigo Mariachi" 
-            className="w-72 h-72 object-contain drop-shadow-2xl mb-4 animate-float" 
-        />
+        <div className="animate-float mb-4">
+            <AmigoMascot size={260} />
+        </div>
         
         <div className="w-full text-center space-y-6">
             {step === 'name' ? (
@@ -69,7 +66,7 @@ const WelcomeScreen: React.FC = () => {
                         onChange={(e) => setNameInput(e.target.value)}
                         className="w-full bg-slate-50 border-b-4 border-slate-200 p-5 text-3xl font-black text-slate-900 focus:outline-none focus:border-teal-500 transition-all text-center rounded-2xl shadow-inner"
                     />
-                    {error && <p className="text-red-500 font-bold animate-pulse">{error}</p>}
+                    {error && <p className="text-red-500 font-bold">{error}</p>}
                     <button onClick={handleNameConfirm} className="bg-slate-900 text-white font-black px-12 py-5 rounded-[2rem] text-xl shadow-xl hover:scale-105 active:scale-95 transition-all">
                         {currentLang === 'mk' ? 'Следно' : 'Next'}
                     </button>
@@ -88,10 +85,7 @@ const WelcomeScreen: React.FC = () => {
                         onChange={(e) => setAgeInput(e.target.value.replace(/\D/g, ''))}
                         className="w-full bg-slate-50 border-b-4 border-slate-200 p-5 text-5xl font-black text-slate-900 focus:outline-none focus:border-orange-500 transition-all text-center rounded-2xl shadow-inner"
                     />
-                    <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
-                        {currentLang === 'mk' ? 'Амиго е тука за сите.' : 'Amigo is here for everyone.'}
-                    </p>
-                    {error && <p className="text-red-500 font-bold animate-pulse">{error}</p>}
+                    {error && <p className="text-red-500 font-bold">{error}</p>}
                     <button onClick={handleFinish} className="bg-orange-500 text-white font-black px-12 py-5 rounded-[2rem] text-xl shadow-xl hover:scale-105 active:scale-95 transition-all">
                         {currentLang === 'mk' ? 'Започни' : 'Launch Amigo'}
                     </button>
