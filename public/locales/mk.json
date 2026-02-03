@@ -1,0 +1,101 @@
+
+{
+  "language_selection": {
+    "title": "Social HQ"
+  },
+  "age_selection": {
+    "welcome": "Добредојде во HQ!",
+    "happy_to_see_you": "Идентитетот е потврден.",
+    "birthdate_prompt": "За апликацијата да „расте“ со тебе, кажи му на Amigo кога ти е роденден!",
+    "select_date": "Датум на раѓање",
+    "placeholder": "дд.мм.гггг",
+    "confirm_button": "Стартувај Amigo 🚀",
+    "reset_note": "Податоците се чуваат локално за твоја приватност.",
+    "invalid_format": "Користи дд.мм.гггг",
+    "invalid_date": "Невалиден датум",
+    "too_young": "Amigo е за истражувачи со 3+ години",
+    "too_old": "Провери ја годината."
+  },
+  "home": {
+    "title": "Amigo",
+    "subtitle": "Социјален Сајдкик",
+    "reset_button_text": "Ресетирај профил",
+    "more_activities_title": "Дневни Тактики",
+    "birthday_toast": "Мисија: Среќен роденден! 🥳",
+    "age_7-9": {
+      "mood_check_title": "Социјална Батерија",
+      "mood_check_description": "Провери ја твојата енергија денес.",
+      "decoder_title": "Social Decoder",
+      "decoder_description": "Исчисти ја маглата од социјалните настани.",
+      "practice_room_title": "Practice Room",
+      "practice_room_description": "Вежбај социјални ситуации со Amigo.",
+      "gratitude_jar_title": "Courage Stars",
+      "gratitude_jar_description": "Најди го тоа што те прави храбар!",
+      "get_moving_title": "Daily Hero Missions",
+      "get_moving_description": "Брза задача за енергија.",
+      "kindness_act_title": "Kindness Mission",
+      "kindness_act_description": "Направи нешто добро за заедницата.",
+      "calm_zone_title": "Chill Zone",
+      "calm_zone_description": "Наполни ја социјалната батерија.",
+      "reflections_title": "Social Archives",
+      "reflections_description": "Твоите социјални победи."
+    },
+    "age_10-12": {
+      "mood_check_title": "Социјална Батерија",
+      "mood_check_description": "Како е твојата ментална енергија?",
+      "decoder_title": "Social Decoder",
+      "decoder_description": "Анализирај социјални сигнали.",
+      "practice_room_title": "Practice Room",
+      "practice_room_description": "Симулирај социјални интеракции.",
+      "gratitude_jar_title": "Courage Stars",
+      "gratitude_jar_description": "Следи ја твојата храброст.",
+      "get_moving_title": "Daily Hero Missions",
+      "get_moving_description": "Body-mind ресет предизвик.",
+      "kindness_act_title": "Impact Act",
+      "kindness_act_description": "Направи социјално влијание.",
+      "calm_zone_title": "Chill Zone",
+      "calm_zone_description": "Мир за социјална преоптовареност.",
+      "reflections_title": "Social Archives",
+      "reflections_description": "Твоето социјално патување."
+    },
+    "age_12+": {
+      "mood_check_title": "Социјална Батерија",
+      "mood_check_description": "Следење на енергетски податоци.",
+      "decoder_title": "Social Decoder Pro",
+      "decoder_description": "Напредна тактичка анализа.",
+      "practice_room_title": "Simulator Pro",
+      "practice_room_description": "Напредни социјални симулации.",
+      "gratitude_jar_title": "Stoic Progress",
+      "gratitude_jar_description": "Совладување перспектива и храброст.",
+      "get_moving_title": "Daily Hero Missions",
+      "get_moving_description": "Физички ресет за фокус.",
+      "kindness_act_title": "Social Impact",
+      "kindness_act_description": "Стратешки позитивни акции.",
+      "calm_zone_title": "Stoic Calm",
+      "calm_zone_description": "Длабок фокус и полнење.",
+      "reflections_title": "Social Archives",
+      "reflections_description": "Прегледај ги тактичките дневници."
+    }
+  },
+  "social_decoder": {
+    "input_label": "Што се случи? Опиши ја ситуацијата:",
+    "placeholder": "На пример: Некој ми се насмевна во ходникот...",
+    "analyze_button": "Анализирај Сигнали 🔍",
+    "fog_question": "Дали ова ја исчисти маглата?",
+    "victory_title": "Твојата Социјална Победа!",
+    "back_button": "Нова Анализа",
+    "loading": "Декодирам сигнали...",
+    "success_toast": "Успешно декодирано! +10 Поени"
+  },
+  "points_summary": {
+    "points": "🌟 Courage Stars",
+    "streak": "Win Streak"
+  },
+  "moods": {
+    "Happy": "High Energy",
+    "Sad": "Low Energy",
+    "Angry": "Overheated",
+    "Worried": "Flickering",
+    "Tired": "Drained"
+  }
+}

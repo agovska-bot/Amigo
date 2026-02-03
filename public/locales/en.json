@@ -1,0 +1,91 @@
+
+{
+  "language_selection": {
+    "title": "Social HQ"
+  },
+  "age_selection": {
+    "welcome": "Welcome to HQ!",
+    "happy_to_see_you": "Identity Verified.",
+    "birthdate_prompt": "To grow with you as your social sidekick, tell Amigo your birthday!",
+    "select_date": "Date of Birth",
+    "placeholder": "dd.mm.yyyy",
+    "confirm_button": "Launch Amigo 🚀",
+    "reset_note": "Data stored locally for privacy.",
+    "invalid_format": "Use format dd.mm.yyyy",
+    "invalid_date": "Invalid date",
+    "too_young": "Amigo is for explorers aged 3+",
+    "too_old": "Verify year input."
+  },
+  "home": {
+    "title": "Amigo",
+    "subtitle": "Social Sidekick",
+    "reset_button_text": "Reset Profile",
+    "more_activities_title": "Daily Tactics",
+    "birthday_toast": "Mission Update: Happy Birthday! 🥳",
+    "age_7-9": {
+      "mood_check_title": "Social Battery",
+      "mood_check_description": "Check in with your feelings today.",
+      "decoder_title": "Social Decoder",
+      "decoder_description": "Clear the fog from social events.",
+      "practice_room_title": "Practice Room",
+      "practice_room_description": "Roleplay social situations with Amigo.",
+      "gratitude_jar_title": "Courage Stars",
+      "gratitude_jar_description": "Find what makes you brave!",
+      "get_moving_title": "Hero Mission",
+      "get_moving_description": "Quick task to boost your energy.",
+      "kindness_act_title": "Kindness Mission",
+      "kindness_act_description": "Do something kind for the community.",
+      "calm_zone_title": "Chill Zone",
+      "calm_zone_description": "Recharge your social battery.",
+      "reflections_title": "Social Archives",
+      "reflections_description": "Your past social victories."
+    },
+    "age_10-12": {
+      "mood_check_title": "Social Battery",
+      "mood_check_description": "How's your mental energy today?",
+      "decoder_title": "Social Decoder",
+      "decoder_description": "Analyze social signals and situations.",
+      "practice_room_title": "Practice Room",
+      "practice_room_description": "Simulate and practice social interactions.",
+      "gratitude_jar_title": "Courage Stars",
+      "gratitude_jar_description": "Track your bravery and growth.",
+      "get_moving_title": "Hero Mission",
+      "get_moving_description": "Body-mind reset challenge.",
+      "kindness_act_title": "Impact Act",
+      "kindness_act_description": "Make a positive social impact.",
+      "calm_zone_title": "Chill Zone",
+      "calm_zone_description": "Mindfulness for social overwhelm.",
+      "reflections_title": "Social Archives",
+      "reflections_description": "Reflect on your social journey."
+    },
+    "age_12+": {
+      "mood_check_title": "Social Battery",
+      "mood_check_description": "Energy data tracking.",
+      "decoder_title": "Social Decoder Pro",
+      "decoder_description": "Advanced tactical social analysis.",
+      "practice_room_title": "Simulator Pro",
+      "practice_room_description": "High-stakes social roleplay.",
+      "gratitude_jar_title": "Stoic Progress",
+      "gratitude_jar_description": "Mastering perspective and bravery.",
+      "get_moving_title": "Core Mission",
+      "get_moving_description": "Physical reset for peak focus.",
+      "kindness_act_title": "Social Impact",
+      "kindness_act_description": "Strategic positive actions.",
+      "calm_zone_title": "Stoic Calm",
+      "calm_zone_description": "Deep focus and recharge.",
+      "reflections_title": "Mind Archive",
+      "reflections_description": "Review social tactical logs."
+    }
+  },
+  "points_summary": {
+    "points": "🌟 Courage Stars",
+    "streak": "Win Streak"
+  },
+  "moods": {
+    "Happy": "High Energy",
+    "Sad": "Low Energy",
+    "Angry": "Overheated",
+    "Worried": "Flickering",
+    "Tired": "Drained"
+  }
+}
