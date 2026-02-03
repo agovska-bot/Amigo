@@ -1,5 +1,10 @@
 import { Mood } from './types';
 
+export const POINTS_PER_ACTIVITY = 10;
+export const MISSION_POINTS = 15;
+export const PRACTICE_POINTS = 20;
+
+// Added exported constants for mood configuration
 export const MOOD_OPTIONS: Mood[] = ['Happy', 'Sad', 'Angry', 'Worried', 'Tired'];
 
 export const MOOD_EMOJIS: Record<Mood, string> = {
@@ -7,15 +12,13 @@ export const MOOD_EMOJIS: Record<Mood, string> = {
   Sad: '😢',
   Angry: '😠',
   Worried: '😟',
-  Tired: '😴',
+  Tired: '😴'
 };
 
 export const MOOD_COLORS: Record<Mood, string> = {
-  Happy: 'bg-yellow-400',
-  Sad: 'bg-blue-400',
-  Angry: 'bg-red-400',
-  Worried: 'bg-purple-400',
-  Tired: 'bg-gray-400',
+  Happy: 'bg-yellow-100',
+  Sad: 'bg-blue-100',
+  Angry: 'bg-red-100',
+  Worried: 'bg-purple-100',
+  Tired: 'bg-gray-100'
 };
-
-export const POINTS_PER_ACTIVITY = 10;

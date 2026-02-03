@@ -13,6 +13,7 @@ import WelcomeScreen from './screens/LanguageSelectionScreen';
 const App: React.FC = () => {
   const { currentScreen, toastMessage, language, birthDate, userName } = useAppContext();
 
+  // Onboarding check
   if (!language || !birthDate || !userName) {
     return <WelcomeScreen />;
   }
@@ -29,10 +30,10 @@ const App: React.FC = () => {
   };
 
   return (
-    <>
+    <div className="font-sans antialiased text-slate-900 overflow-x-hidden bg-white">
       {renderContent()}
       {toastMessage && <Toast message={toastMessage} />}
-    </>
+    </div>
   );
 };
 

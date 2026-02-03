@@ -1,11 +1,30 @@
 
 {
-  "points_summary": {
-    "points": "Courage Stars"
+  "onboarding": {
+    "welcome": "¡Hola!",
+    "intro": "Јас сум Амиго.",
+    "name_prompt": "Како се викаш?",
+    "age_prompt": "Колку години имаш?",
+    "start_button": "Започни"
   },
-  "age_selection": {
-    "birthdate_prompt": "Колку години имаш?",
-    "placeholder": "Години",
-    "disclaimer": "Апликацијата е наменета за возраст од 10 до 16 години, но Амиго е секогаш тука да помогне секому."
+  "home": {
+    "subtitle": "Од збунетост до разбирање",
+    "decoder": "Декодер",
+    "practice": "Вежбалница",
+    "chill": "Опуштање",
+    "missions": "Мисии",
+    "stars": "Ѕвезди",
+    "reset": "Избриши профил"
+  },
+  "decoder": {
+    "prompt": "Што се случи?",
+    "analyze": "Анализирај Сигнали",
+    "victory": "Социјална Победа",
+    "help_text": "Дали ова ја исчисти маглата?"
+  },
+  "practice": {
+    "scenario_pick": "Избери сценарио:",
+    "finish": "Заврши вежба",
+    "skill_up": "Социјална вештина подобрена!"
   }
 }

@@ -11,7 +11,7 @@ const PuzzleButton: React.FC<{ title: string; icon: string; color: string; onCli
         className={`aspect-square w-full p-2 flex flex-col items-center justify-center gap-1 transition-all hover:brightness-110 active:scale-90 shadow-lg ${color} ${rounded} border-4 border-white/20`}
     >
         <span className="text-3xl filter drop-shadow-md">{icon}</span>
-        <span className="text-[9px] font-black uppercase tracking-tight text-white text-center leading-none">{title}</span>
+        <span className="text-[10px] font-black uppercase tracking-tight text-white text-center leading-none">{title}</span>
     </button>
 );
 
@@ -20,7 +20,7 @@ const HomeScreen: React.FC = () => {
   const isPro = ageGroup === '12+';
 
   const handleReset = () => {
-    const msg = language === 'mk' ? "Избриши профил?" : "Reset profile?";
+    const msg = language === 'mk' ? "Дали сте сигурни дека сакате да го ресетирате профилот?" : "Are you sure you want to reset your profile?";
     if (window.confirm(msg)) resetApp();
   };
 
@@ -28,7 +28,7 @@ const HomeScreen: React.FC = () => {
     <div className={`min-h-screen w-full transition-colors duration-1000 ${isPro ? 'bg-slate-900' : 'bg-slate-50'}`}>
       <ScreenWrapper title="" showBackButton={false}>
         
-        {/* Logo Hero Section */}
+        {/* Brand Section */}
         <div className="flex flex-col items-center justify-center pt-2 mb-4 relative">
             <div className="animate-float">
                 <AmigoMascot size={220} />
@@ -44,31 +44,31 @@ const HomeScreen: React.FC = () => {
             </div>
         </div>
 
-        {/* Puzzle Grid */}
+        {/* Activity Grid */}
         <div className="grid grid-cols-2 gap-2 w-full max-w-[260px] mx-auto p-2 bg-white/10 rounded-[2.5rem] backdrop-blur-sm">
             <PuzzleButton 
-                title={language === 'mk' ? "Decoder" : "Decoder"}
+                title={language === 'mk' ? "Декодер" : "Decoder"}
                 icon="🔍"
                 color="bg-teal-500"
                 rounded="rounded-tl-[3rem] rounded-br-[1rem]"
                 onClick={() => setCurrentScreen(Screen.SocialDecoder)}
             />
             <PuzzleButton 
-                title={language === 'mk' ? "Practice" : "Practice"}
+                title={language === 'mk' ? "Вежбалница" : "Practice"}
                 icon="⚔️"
                 color="bg-orange-500"
                 rounded="rounded-tr-[3rem] rounded-bl-[1rem]"
                 onClick={() => setCurrentScreen(Screen.PracticeRoom)}
             />
             <PuzzleButton 
-                title={language === 'mk' ? "Chill" : "Chill"}
+                title={language === 'mk' ? "Опуштање" : "Chill"}
                 icon="🌬️"
                 color="bg-indigo-500"
                 rounded="rounded-bl-[3rem] rounded-tr-[1rem]"
                 onClick={() => setCurrentScreen(Screen.CalmZone)}
             />
             <PuzzleButton 
-                title={language === 'mk' ? "Missions" : "Missions"}
+                title={language === 'mk' ? "Мисии" : "Missions"}
                 icon="🛡️"
                 color="bg-blue-600"
                 rounded="rounded-br-[3rem] rounded-tl-[1rem]"
@@ -76,7 +76,7 @@ const HomeScreen: React.FC = () => {
             />
         </div>
 
-        {/* Stats & Footer */}
+        {/* Stats */}
         <div className="mt-6 flex flex-col items-center gap-3 pb-4">
             <div className="bg-white/90 px-5 py-2 rounded-full shadow-md border-2 border-white flex items-center gap-2">
                 <span className="text-lg">🌟</span>

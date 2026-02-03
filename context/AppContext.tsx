@@ -11,6 +11,8 @@ interface AppContextType {
   setUserName: (name: string) => void;
   courageStars: number;
   addCourageStars: (amount: number) => void;
+  // Added addPoints as a wrapper/alias for addCourageStars used in components
+  addPoints: (category: string, amount: number) => void;
   toastMessage: string | null;
   showToast: (message: string) => void;
   birthDate: string | null; 
@@ -22,14 +24,14 @@ interface AppContextType {
   resetApp: () => void;
   activeTasks: ActiveTasks;
   setActiveTask: (task: keyof ActiveTasks, value: string | null) => void;
-  t: (key: string, fallback?: string) => string;
-  // Missing properties added to fix compilation errors
+  t: (key: string, fallback?: string) => any;
+  // Added mood and reflection states and handlers
   moodHistory: MoodEntry[];
   addMood: (entry: MoodEntry) => void;
   reflections: ReflectionEntry[];
   addReflection: (entry: ReflectionEntry) => void;
+  // Added story creator states and handlers
   stories: StoryEntry[];
-  addPoints: (category: string, amount: number) => void;
   storyInProgress: string[];
   chatSession: Chat | null;
   startNewStory: (chat: Chat, firstSentence: string) => void;
@@ -39,29 +41,52 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
+const translations: Record<string, any> = {
+  en: {
+    onboarding: { welcome: "¡Hola!", intro: "I am Amigo.", name_prompt: "What is your name?", age_prompt: "How old are you?", start_button: "Launch Amigo" },
+    home: { subtitle: "Turning Confusion into Understanding", decoder: "Decoder", practice: "Practice", chill: "Chill", missions: "Missions", reset: "Reset Profile" },
+    decoder: { prompt: "What happened?", analyze: "Analyze Signals", victory: "Social Victory", help_text: "Does this help clear the fog?" },
+    practice: { scenario_pick: "Pick a scenario:", finish: "Finish Practice", skill_up: "Social Skill Up!" },
+    points_summary: { points: "Courage Stars" }
+  },
+  mk: {
+    onboarding: { welcome: "¡Hola!", intro: "Јас сум Амиго.", name_prompt: "Како се викаш?", age_prompt: "Колку години имаш?", start_button: "Започни" },
+    home: { subtitle: "Од збунетост до разбирање", decoder: "Декодер", practice: "Вежбалница", chill: "Опуштање", missions: "Мисии", reset: "Избриши профил" },
+    decoder: { prompt: "Што се случи?", analyze: "Анализирај Сигнали", victory: "Социјална Победа", help_text: "Дали ова ја исчисти маглата?" },
+    practice: { scenario_pick: "Избери сценарио:", finish: "Заврши вежба", skill_up: "Социјална вештина подобрена!" },
+    points_summary: { points: "Ѕвезди" }
+  }
+};
+
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useLocalStorage<Language | null>('language', null);
   const [userName, setUserName] = useLocalStorage<string | null>('userName', null);
   const [birthDate, setBirthDate] = useLocalStorage<string | null>('birthDate', null);
   const [courageStars, setCourageStars] = useLocalStorage<number>('courageStars', 0);
-  const [activeTasks, setActiveTasks] = useLocalStorage<ActiveTasks>('activeTasks', { 
-    move: null, 
-    gratitude: null, 
-    kindness: null 
-  });
+  const [activeTasks, setActiveTasks] = useLocalStorage<ActiveTasks>('activeTasks', { move: null, kindness: null });
 
-  // Additional history and session states
+  // Added persisted storage for logs and stories
   const [moodHistory, setMoodHistory] = useLocalStorage<MoodEntry[]>('moodHistory', []);
   const [reflections, setReflections] = useLocalStorage<ReflectionEntry[]>('reflections', []);
   const [stories, setStories] = useLocalStorage<StoryEntry[]>('stories', []);
-  const [storyInProgress, setStoryInProgress] = useState<string[]>([]);
+
+  // Added session-based story state
   const [chatSession, setChatSession] = useState<Chat | null>(null);
+  const [storyInProgress, setStoryInProgress] = useState<string[]>([]);
 
   const [currentScreen, setCurrentScreen] = useState<Screen>(Screen.Home);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const age = useMemo(() => birthDate ? (isNaN(parseInt(birthDate, 10)) ? null : parseInt(birthDate, 10)) : null, [birthDate]);
-  const ageGroup = useMemo((): AgeGroup | null => age !== null ? (age < 13 ? '10-12' : '12+') : null, [age]);
+  const age = useMemo(() => {
+    if (!birthDate) return null;
+    const ageNum = parseInt(birthDate, 10);
+    return isNaN(ageNum) ? null : ageNum;
+  }, [birthDate]);
+
+  const ageGroup = useMemo((): AgeGroup | null => {
+    if (age === null) return null;
+    return age < 13 ? '10-12' : '12+';
+  }, [age]);
 
   const resetApp = useCallback(() => {
     window.localStorage.clear();
@@ -78,9 +103,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setCourageStars(p => p + amount);
   }, [setCourageStars]);
 
-  const addPoints = useCallback((category: string, amount: number) => {
+  // Generic points handler
+  const addPoints = useCallback((_category: string, amount: number) => {
     addCourageStars(amount);
   }, [addCourageStars]);
+
+  const setActiveTask = (task: keyof ActiveTasks, value: string | null) => 
+    setActiveTasks(prev => ({ ...prev, [task]: value }));
 
   const addMood = useCallback((entry: MoodEntry) => {
     setMoodHistory(prev => [entry, ...prev]);
@@ -89,9 +118,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const addReflection = useCallback((entry: ReflectionEntry) => {
     setReflections(prev => [entry, ...prev]);
   }, [setReflections]);
-
-  const setActiveTask = (task: keyof ActiveTasks, value: string | null) => 
-    setActiveTasks(prev => ({ ...prev, [task]: value }));
 
   const startNewStory = useCallback((chat: Chat, firstSentence: string) => {
     setChatSession(chat);
@@ -103,33 +129,44 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, []);
 
   const finishStory = useCallback((ending: string) => {
-    const finalContent = [...storyInProgress, ending];
+    const fullStory = [...storyInProgress, ending];
     const newStory: StoryEntry = {
-      title: `Adventure with Buddy - ${new Date().toLocaleDateString()}`,
-      content: finalContent,
-      date: new Date().toISOString()
+        title: `Adventure on ${new Date().toLocaleDateString()}`,
+        content: fullStory,
+        date: new Date().toISOString()
     };
     setStories(prev => [newStory, ...prev]);
     setStoryInProgress([]);
     setChatSession(null);
   }, [storyInProgress, setStories]);
 
+  const t = useCallback((key: string, fallback?: string) => {
+    const lang = language || 'en';
+    const dict = translations[lang] || translations.en;
+    const keys = key.split('.');
+    let result = dict;
+    for (const k of keys) {
+      if (result && result[k]) result = result[k];
+      else return fallback || key;
+    }
+    return result;
+  }, [language]);
+
   return (
     <AppContext.Provider value={{
       currentScreen, setCurrentScreen,
       userName, setUserName,
-      courageStars, addCourageStars,
+      courageStars, addCourageStars, addPoints,
       toastMessage, showToast,
       birthDate, setBirthDate,
       age, ageGroup,
       language, setLanguage,
       resetApp,
       activeTasks, setActiveTask,
-      t: (k: string, fallback?: string) => fallback || k,
+      t,
       moodHistory, addMood,
       reflections, addReflection,
-      stories, addPoints,
-      storyInProgress, chatSession,
+      stories, storyInProgress, chatSession,
       startNewStory, continueStory, finishStory
     }}>
       {children}
