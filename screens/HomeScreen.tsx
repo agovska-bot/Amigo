@@ -3,106 +3,103 @@ import React from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Screen } from '../types';
 import ScreenWrapper from '../components/ScreenWrapper';
-import PointsSummary from '../components/PointsSummary';
-import { useTranslation } from '../hooks/useTranslation';
-import AnimatedTaskCard from '../components/AnimatedTaskCard';
+
+const PuzzlePiece: React.FC<{ title: string; icon: string; color: string; onClick: () => void }> = ({ title, icon, color, onClick }) => (
+    <button 
+        onClick={onClick}
+        className={`aspect-square w-full p-4 rounded-[2.5rem] shadow-xl flex flex-col items-center justify-center gap-2 transition-all hover:scale-105 active:scale-90 border-4 border-white ${color}`}
+    >
+        <span className="text-4xl filter drop-shadow-md">{icon}</span>
+        <span className="text-[10px] font-black uppercase tracking-widest text-white text-center leading-tight">{title}</span>
+    </button>
+);
 
 const HomeScreen: React.FC = () => {
-  const { setCurrentScreen, ageGroup, resetApp, userName, language } = useAppContext();
-  const { t } = useTranslation();
+  const { setCurrentScreen, courageStars, resetApp, userName, language, ageGroup } = useAppContext();
+  const isPro = ageGroup === '12+';
 
   const handleReset = () => {
-    const msg = language === 'mk' 
-      ? "Дали си сигурен дека сакаш да го избришеш профилот? Сите поени ќе бидат изгубени." 
-      : "Are you sure you want to reset your profile? All data will be permanently deleted.";
-    if (window.confirm(msg)) {
-        resetApp();
-    }
+    const msg = language === 'mk' ? "Дали си сигурен дека сакаш да го избришеш профилот?" : "Are you sure you want to reset your profile?";
+    if (window.confirm(msg)) resetApp();
   };
-
-  const isPro = ageGroup === '12+';
-  const theme = {
-    bg: isPro ? 'bg-[#0f172a]' : 'bg-slate-50',
-    textColor: isPro ? 'text-white' : 'text-slate-900',
-  };
-
-  const footerContent = (
-    <div className="pb-4">
-      <button 
-        onClick={handleReset}
-        className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-red-500 transition-colors p-2 block mx-auto underline active:scale-95"
-      >
-        {language === 'mk' ? 'Ресетирај профил' : 'Reset Profile'}
-      </button>
-    </div>
-  );
 
   return (
-    <div className={`relative min-h-screen w-full overflow-hidden ${theme.bg}`}>
-      {/* Background decoration */}
-      <div className="fixed top-[-10%] left-[-20%] w-[50rem] h-[50rem] bg-teal-500/5 rounded-full filter blur-[120px] pointer-events-none"></div>
-      
-      <ScreenWrapper title="" showBackButton={false} footerContent={footerContent}>
-        <div className="flex flex-col items-center text-center pt-2 mb-8">
-            <div className="flex flex-row items-center justify-center gap-3">
-              <div className="w-12 h-12 bg-teal-500 rounded-2xl flex items-center justify-center shadow-lg">
-                <span className="text-2xl text-white font-black">A</span>
-              </div>
-              <div className="flex flex-col items-start">
-                <span className={`text-3xl font-black tracking-tighter leading-none ${isPro ? 'text-white' : 'text-slate-900'}`}>Amigo</span>
-                <span className="text-[9px] font-black uppercase tracking-wider text-teal-500 mt-1 opacity-80">
-                    {language === 'mk' ? 'Од збунетост до разбирање' : 'Turning Confusion into Understanding'}
-                </span>
-              </div>
+    <div className={`min-h-screen w-full transition-colors duration-1000 ${isPro ? 'bg-slate-900' : 'bg-slate-50'}`}>
+      <ScreenWrapper title="" showBackButton={false}>
+        
+        {/* Logo Hero Section - Focus on Mariachi Mascot */}
+        <div className="flex flex-col items-center justify-center pt-2 mb-8 relative">
+            <div className="relative group">
+                {/* Soft glow behind the mascot */}
+                <div className="absolute inset-0 bg-teal-500/10 blur-[60px] rounded-full group-hover:bg-teal-500/20 transition-all"></div>
+                
+                {/* The Amigo Mariachi Mascot holding the guitar */}
+                <img 
+                    src="/amigo-logo.png" 
+                    alt="Amigo Mariachi" 
+                    className="w-64 h-64 object-contain relative z-10 transition-transform duration-700 group-hover:scale-110 drop-shadow-2xl" 
+                />
             </div>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] mt-6 opacity-40">Agent: {userName}</p>
+            
+            <div className="text-center mt-[-15px] z-20">
+                <h1 className={`text-6xl font-black tracking-tighter ${isPro ? 'text-white' : 'text-slate-900'}`}>
+                    Amigo
+                </h1>
+                <p className="text-[11px] font-black uppercase tracking-[0.4em] text-teal-600 opacity-90">
+                    {language === 'mk' ? 'Од збунетост до разбирање' : 'Turning Confusion into Understanding'}
+                </p>
+            </div>
         </div>
 
-        <div className="mb-8">
-            <PointsSummary />
-        </div>
-
-        <div className="grid grid-cols-1 gap-4">
-            <AnimatedTaskCard 
-                title={language === 'mk' ? "Social Decoder" : "Social Decoder"}
-                description={language === 'mk' ? "Декодирај ги скриените значења." : "Decode hidden social meanings."}
+        {/* Puzzle Grid - 2x2 Layout */}
+        <div className="grid grid-cols-2 gap-4 w-full max-w-[320px] mx-auto">
+            <PuzzlePiece 
+                title={language === 'mk' ? "Decoder" : "Decoder"}
                 icon="🔍"
-                color={isPro ? "bg-slate-800 border-slate-700" : "bg-teal-500 text-white"}
-                animationType="pulse-glow"
-                variant={isPro ? 'serious' : 'modern'}
+                color="bg-teal-500"
                 onClick={() => setCurrentScreen(Screen.SocialDecoder)}
             />
-            
-            <AnimatedTaskCard 
-                title={language === 'mk' ? "Practice Room" : "Practice Room"}
-                description={language === 'mk' ? "Симулирај социјални разговори." : "Simulate social conversations."}
+            <PuzzlePiece 
+                title={language === 'mk' ? "Practice" : "Practice"}
                 icon="⚔️"
-                color={isPro ? "bg-slate-800 border-slate-700" : "bg-orange-500 text-white"}
-                animationType="none"
-                variant={isPro ? 'serious' : 'modern'}
+                color="bg-orange-500"
                 onClick={() => setCurrentScreen(Screen.PracticeRoom)}
             />
-
-            <AnimatedTaskCard 
-                title={language === 'mk' ? "Chill Zone" : "Chill Zone"}
-                description={language === 'mk' ? "Наполни ја социјалната батерија." : "Recharge your social energy."}
+            <PuzzlePiece 
+                title={language === 'mk' ? "Chill" : "Chill"}
                 icon="🌬️"
-                color={isPro ? "bg-slate-800 border-slate-700" : "bg-[#0f172a] text-white"}
-                animationType="floating-cloud"
-                variant={isPro ? 'serious' : 'modern'}
+                color="bg-indigo-500"
                 onClick={() => setCurrentScreen(Screen.CalmZone)}
             />
-
-            <AnimatedTaskCard 
-                title={language === 'mk' ? "Daily Hero Missions" : "Daily Hero Missions"}
-                description={language === 'mk' ? "Предизвици за социјална храброст." : "Challenges for social courage."}
+            <PuzzlePiece 
+                title={language === 'mk' ? "Missions" : "Missions"}
                 icon="🛡️"
-                color={isPro ? "bg-slate-800 border-slate-700" : "bg-blue-600 text-white"}
-                animationType="rising-stars"
-                variant={isPro ? 'serious' : 'modern'}
+                color="bg-blue-600"
                 onClick={() => setCurrentScreen(Screen.Move)}
             />
         </div>
+
+        {/* User Stats and Tools */}
+        <div className="mt-10 flex flex-col items-center gap-6 pb-6">
+            <div className="bg-white/90 backdrop-blur-md px-6 py-3 rounded-full shadow-lg border-2 border-white flex items-center gap-3">
+                <span className="text-2xl">🌟</span>
+                <span className="text-xl font-black text-slate-800">{courageStars}</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Courage Stars</span>
+            </div>
+
+            <div className="flex flex-col items-center">
+                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
+                    Active Agent: {userName}
+                </p>
+                <button 
+                    onClick={handleReset}
+                    className="text-[9px] font-black uppercase tracking-[0.25em] text-slate-300 hover:text-red-500 transition-colors py-2 px-4 underline decoration-slate-200"
+                >
+                    {language === 'mk' ? 'Ресетирај профил' : 'Reset Profile'}
+                </button>
+            </div>
+        </div>
+
       </ScreenWrapper>
     </div>
   );
