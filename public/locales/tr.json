@@ -6,15 +6,16 @@
   "age_selection": {
     "welcome": "Hoş geldiniz!",
     "happy_to_see_you": "Burada olmanıza çok sevindik!",
-    "birthdate_prompt": "Sizinle birlikte büyümek ve size en iyi aktiviteleri sunmak için Buddy'ye doğum gününüzü söyleyin!",
-    "select_date": "Doğum gününüzü seçin",
-    "placeholder": "gg.aa.yyyy",
+    "birthdate_prompt": "Kaç yaşındasınız?",
+    "disclaimer": "Uygulama 10-16 yaş arası için tasarlanmıştır, ancak Amigo her zaman herkese yardım etmek için buradadır.",
+    "select_date": "Yaşınızı girin",
+    "placeholder": "Yaş",
     "confirm_button": "Haydi Başlayalım! 🚀",
     "reset_note": "Bunu daha sonra isterseniz sıfırlayabilirsiniz.",
-    "invalid_format": "gg.aa.yyyy formatını kullanın",
-    "invalid_date": "Lütfen geçerli bir tarih girin",
+    "invalid_format": "Lütfen bir sayı girin",
+    "invalid_date": "Lütfen geçerli bir yaş girin",
     "too_young": "En az 3 yaşında olmalısınız!",
-    "too_old": "Bu gerçek bir tarih mi? :)"
+    "too_old": "Bu gerçek bir yaş mı? :)"
   },
   "home": {
     "title": "Moody Buddy",

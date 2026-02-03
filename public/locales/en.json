@@ -6,15 +6,15 @@
   "age_selection": {
     "welcome": "Welcome to HQ!",
     "happy_to_see_you": "Identity Verified.",
-    "birthdate_prompt": "To grow with you as your social sidekick, tell Amigo your birthday!",
-    "select_date": "Date of Birth",
-    "placeholder": "dd.mm.yyyy",
+    "birthdate_prompt": "How old are you?",
+    "disclaimer": "The app is intended for ages 10 to 16, but Amigo is always here to help everyone.",
+    "select_date": "Enter your age",
+    "placeholder": "Years",
     "confirm_button": "Launch Amigo 🚀",
     "reset_note": "Data stored locally for privacy.",
-    "invalid_format": "Use format dd.mm.yyyy",
-    "invalid_date": "Invalid date",
+    "invalid_format": "Please enter a number",
     "too_young": "Amigo is for explorers aged 3+",
-    "too_old": "Verify year input."
+    "too_old": "Verify age input."
   },
   "home": {
     "title": "Amigo",

@@ -1,44 +1,40 @@
 
 import React, { createContext, useContext, useState, ReactNode, useCallback, useMemo, useEffect } from 'react';
 import useLocalStorage from '../hooks/useLocalStorage';
-import { Screen, MoodEntry, Points, ReflectionEntry, AgeGroup, StoryEntry, Language } from '../types';
+import { Screen, AgeGroup, Language, MoodEntry, ReflectionEntry, StoryEntry } from '../types';
 import { Chat } from '@google/genai';
 
+// FIX: Updated AppContextType to include all required fields for mood, points, reflections, and story creation.
 interface AppContextType {
   currentScreen: Screen;
   setCurrentScreen: (screen: Screen) => void;
   userName: string | null;
   setUserName: (name: string) => void;
-  moodHistory: MoodEntry[];
-  addMood: (mood: MoodEntry) => void;
-  reflections: ReflectionEntry[];
-  addReflection: (reflection: ReflectionEntry) => void;
-  stories: StoryEntry[];
-  addStory: (story: StoryEntry) => void;
-  points: Points;
-  addPoints: (category: keyof Points, amount: number) => void;
-  totalPoints: number;
+  courageStars: number;
+  addCourageStars: (amount: number) => void;
+  addPoints: (category: string, amount: number) => void;
   toastMessage: string | null;
   showToast: (message: string) => void;
-  streakDays: number;
-  birthDate: string | null;
-  setBirthDate: (date: string) => void;
+  birthDate: string | null; // Stores age as string for compatibility
+  setBirthDate: (age: string) => void;
   age: number | null;
   ageGroup: AgeGroup | null;
-  isBirthdayToday: boolean;
   language: Language | null;
   setLanguage: (language: Language) => void;
   resetApp: () => void;
   t: (key: string, fallback?: string) => any;
-  isInstallable: boolean;
-  installApp: () => void;
   activeTasks: Record<string, string | null>;
   setActiveTask: (category: string, task: string | null) => void;
+  moodHistory: MoodEntry[];
+  addMood: (entry: MoodEntry) => void;
+  reflections: ReflectionEntry[];
+  addReflection: (entry: ReflectionEntry) => void;
+  stories: StoryEntry[];
   storyInProgress: string[];
   chatSession: Chat | null;
-  startNewStory: (chat: Chat, firstSentence: string) => void;
-  continueStory: (userSentence: string, aiSentence: string) => void;
-  finishStory: (finalSentence: string) => void;
+  startNewStory: (session: Chat, firstSentence: string) => void;
+  continueStory: (userSentence: string, buddySentence: string) => void;
+  finishStory: (ending: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -47,26 +43,31 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [language, setLanguageStorage] = useLocalStorage<Language | null>('language', null);
   const [userName, setUserNameStorage] = useLocalStorage<string | null>('userName', null);
   const [birthDate, setBirthDateStorage] = useLocalStorage<string | null>('birthDate', null);
+  const [courageStars, setCourageStars] = useLocalStorage<number>('courageStars', 0);
   const [translationsData, setTranslationsData] = useState<Record<string, any> | null>(null);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-
+  
+  // FIX: Added local storage persistence for user history to resolve missing property errors in ReflectionScreen.
+  const [moodHistory, setMoodHistory] = useLocalStorage<MoodEntry[]>('moodHistory', []);
+  const [reflections, setReflections] = useLocalStorage<ReflectionEntry[]>('reflections', []);
+  const [stories, setStories] = useLocalStorage<StoryEntry[]>('stories', []);
+  
+  // FIX: Added session state for Story Creator screen.
   const [storyInProgress, setStoryInProgress] = useState<string[]>([]);
   const [chatSession, setChatSession] = useState<Chat | null>(null);
 
+  const [currentScreen, setCurrentScreen] = useState<Screen>(Screen.Home);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [activeTasks, setActiveTasks] = useLocalStorage<Record<string, string | null>>('activeTasks', { social: null, move: null, calm: null, gratitude: null, kindness: null });
+
   const age = useMemo(() => {
     if (!birthDate) return null;
-    const today = new Date();
-    const birth = new Date(birthDate);
-    let age = today.getFullYear() - birth.getFullYear();
-    const m = today.getMonth() - birth.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-      age--;
-    }
-    return age;
+    return parseInt(birthDate, 10);
   }, [birthDate]);
 
+  // FIX: Updated ageGroup logic to produce '7-9' for younger users.
   const ageGroup = useMemo((): AgeGroup | null => {
     if (age === null) return null;
+    if (age < 10) return '7-9';
     if (age < 13) return '10-12';
     return '12+';
   }, [age]);
@@ -88,14 +89,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     fetchTranslations();
   }, []);
 
-  const [currentScreen, setCurrentScreen] = useState<Screen>(Screen.Home);
-  const [moodHistory, setMoodHistory] = useLocalStorage<MoodEntry[]>('moodHistory', []);
-  const [reflections, setReflections] = useLocalStorage<ReflectionEntry[]>('reflections', []);
-  const [stories, setStories] = useLocalStorage<StoryEntry[]>('stories', []);
-  const [points, setPoints] = useLocalStorage<Points>('points', { gratitude: 0, physical: 0, kindness: 0, creativity: 0, social: 0 });
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [activeTasks, setActiveTasks] = useLocalStorage<Record<string, string | null>>('activeTasks', { gratitude: null, move: null, kindness: null, calm: null });
-
   const t = useCallback((key: string, fallback?: string): any => {
     if (!translationsData) return fallback || key;
     const currentTranslations = language ? translationsData[language] : translationsData.en;
@@ -109,36 +102,46 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return result;
   }, [language, translationsData]);
 
-  const resetApp = useCallback(() => {
-    // 1. Избриши го целиот локален склад (LocalStorage)
-    window.localStorage.clear();
-    // 2. Избриши го складот на сесијата (SessionStorage)
-    window.sessionStorage.clear();
-    // 3. Форсирај целосно релоадирање на страницата за да се исчистат сите React состојби и да се врати WelcomeScreen
-    window.location.reload();
-  }, []);
+  // FIX: Implemented logic for updating user data and handling the story collaborative session.
+  const addMood = useCallback((entry: MoodEntry) => {
+    setMoodHistory(prev => [entry, ...prev]);
+  }, [setMoodHistory]);
 
-  const startNewStory = useCallback((chat: Chat, firstSentence: string) => {
-    setChatSession(chat);
+  const addReflection = useCallback((entry: ReflectionEntry) => {
+    setReflections(prev => [entry, ...prev]);
+  }, [setReflections]);
+
+  const addPoints = useCallback((category: string, amount: number) => {
+    setCourageStars(prev => prev + amount);
+  }, [setCourageStars]);
+
+  const startNewStory = useCallback((session: Chat, firstSentence: string) => {
+    setChatSession(session);
     setStoryInProgress([firstSentence]);
   }, []);
 
-  const continueStory = useCallback((userSentence: string, aiSentence: string) => {
-    setStoryInProgress(prev => [...prev, userSentence, aiSentence]);
+  const continueStory = useCallback((userSentence: string, buddySentence: string) => {
+    setStoryInProgress(prev => [...prev, userSentence, buddySentence]);
   }, []);
 
-  const finishStory = useCallback((finalSentence: string) => {
-    setStoryInProgress(prev => {
-        const fullContent = [...prev, finalSentence];
-        const newStory: StoryEntry = {
-            title: fullContent[0].length > 30 ? fullContent[0].substring(0, 30) + "..." : fullContent[0],
-            content: fullContent,
-            date: new Date().toISOString()
-        };
-        setStories(prevStories => [...prevStories, newStory]);
-        return fullContent;
-    });
-  }, [setStories]);
+  const finishStory = useCallback((ending: string) => {
+    const fullContent = [...storyInProgress, ending];
+    const newStory: StoryEntry = {
+      title: "Collaborative Adventure",
+      content: fullContent,
+      date: new Date().toISOString()
+    };
+    setStories(prev => [newStory, ...prev]);
+    setStoryInProgress([]);
+    setChatSession(null);
+  }, [storyInProgress, setStories]);
+
+  const resetApp = useCallback(() => {
+    // Hard clear and immediate redirect to root to force WelcomeScreen state
+    window.localStorage.clear();
+    window.sessionStorage.clear();
+    window.location.replace(window.location.origin);
+  }, []);
 
   return (
     <AppContext.Provider value={{
@@ -146,31 +149,26 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       setCurrentScreen,
       userName,
       setUserName: setUserNameStorage,
-      moodHistory,
-      addMood: (m) => setMoodHistory(prev => [...prev, m]),
-      reflections,
-      addReflection: (r) => setReflections(prev => [...prev, r]),
-      stories,
-      addStory: (s) => setStories(prev => [...prev, s]),
-      points,
-      addPoints: (category, amount) => setPoints(prev => ({ ...prev, [category]: prev[category] + amount })),
-      totalPoints: points.gratitude + points.physical + points.kindness + points.creativity + points.social,
+      courageStars,
+      addCourageStars: (amount) => setCourageStars(prev => prev + amount),
+      addPoints,
       toastMessage,
       showToast: (msg) => { setToastMessage(msg); setTimeout(() => setToastMessage(null), 3000); },
-      streakDays: 0, 
       birthDate,
       setBirthDate: setBirthDateStorage,
       age,
       ageGroup,
-      isBirthdayToday: false,
       language,
       setLanguage: setLanguageStorage,
       resetApp,
       t,
-      isInstallable: !!deferredPrompt,
-      installApp: () => deferredPrompt?.prompt(),
       activeTasks,
       setActiveTask: (cat, task) => setActiveTasks(prev => ({ ...prev, [cat]: task })),
+      moodHistory,
+      addMood,
+      reflections,
+      addReflection,
+      stories,
       storyInProgress,
       chatSession,
       startNewStory,

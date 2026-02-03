@@ -37,23 +37,16 @@ const WelcomeScreen: React.FC = () => {
   
   const [step, setStep] = useState<'name' | 'age'>('name');
   const [nameInput, setNameInput] = useState('');
-  const [displayDate, setDisplayDate] = useState('');
+  const [ageInput, setAgeInput] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  // Подобрена функција за детекција на јазик
   const detectLanguage = (input: string): Language => {
-    // Кирилица чек
     const cyrillicPattern = /[\u0400-\u04FF]/;
-    // Специфични МК зборови на латиница
     const mkLatinWords = /\b(zdravo|fala|kako|si|e|vo|na|da|ne|jas|ti)\b/i;
-    
-    if (cyrillicPattern.test(input) || mkLatinWords.test(input)) {
-      return 'mk';
-    }
+    if (cyrillicPattern.test(input) || mkLatinWords.test(input)) return 'mk';
     return 'en';
   };
 
-  // Секогаш кога корисникот внесува име, правиме „тивка“ детекција за да се префрлат преводите
   useEffect(() => {
     if (nameInput.trim().length > 0) {
       const detected = detectLanguage(nameInput);
@@ -64,8 +57,6 @@ const WelcomeScreen: React.FC = () => {
   const handleNameConfirm = () => {
     const trimmedName = nameInput.trim();
     if (trimmedName.length >= 2) {
-      const detected = detectLanguage(trimmedName);
-      setLanguage(detected); // Ова е клучно за t() да работи веднав
       setUserName(trimmedName);
       setError(null);
       setStep('age');
@@ -74,36 +65,23 @@ const WelcomeScreen: React.FC = () => {
     }
   };
 
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/\D/g, ''); 
-    if (value.length > 8) value = value.slice(0, 8);
-    let formatted = value;
-    if (value.length > 2 && value.length <= 4) formatted = `${value.slice(0, 2)}.${value.slice(2)}`;
-    else if (value.length > 4) formatted = `${value.slice(0, 2)}.${value.slice(2, 4)}.${value.slice(4)}`;
-    setDisplayDate(formatted);
+  const handleAgeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value.replace(/\D/g, '').slice(0, 3);
+    setAgeInput(val);
     if (error) setError(null);
   };
 
-  const validateDateAndFinish = () => {
-    const parts = displayDate.split('.');
-    if (parts.length !== 3 || parts[2].length !== 4) { 
-        setError(currentLang === 'mk' ? 'Внеси валиден датум' : 'Enter a valid date'); 
-        return; 
+  const handleFinish = () => {
+    const ageNum = parseInt(ageInput, 10);
+    if (isNaN(ageNum) || ageNum < 3) {
+      setError(t('age_selection.too_young', 'You must be at least 3 years old'));
+      return;
     }
-    const day = parseInt(parts[0], 10);
-    const month = parseInt(parts[1], 10) - 1;
-    const year = parseInt(parts[2], 10);
-    const dateObj = new Date(year, month, day);
-    const today = new Date();
-    let age = today.getFullYear() - dateObj.getFullYear();
-    const m = today.getMonth() - dateObj.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < dateObj.getDate())) age--;
-    
-    if (age < 3) { 
-        setError(currentLang === 'mk' ? 'Мора да имаш барем 3 години' : 'You must be at least 3 years old'); 
-        return; 
+    if (ageNum > 120) {
+      setError(t('age_selection.too_old', 'Verify age input.'));
+      return;
     }
-    setBirthDate(`${parts[2]}-${parts[1]}-${parts[0]}`);
+    setBirthDate(ageInput);
   };
 
   return (
@@ -129,9 +107,7 @@ const WelcomeScreen: React.FC = () => {
                               autoFocus
                               placeholder="..."
                               value={nameInput}
-                              onChange={(e) => {
-                                setNameInput(e.target.value);
-                              }}
+                              onChange={(e) => setNameInput(e.target.value)}
                               className="w-full bg-slate-50 border-b-4 border-slate-200 p-6 text-2xl sm:text-3xl font-black text-[#0f172a] focus:outline-none focus:border-[#14B8A6] transition-all text-center rounded-2xl shadow-sm"
                           />
                         </div>
@@ -151,22 +127,26 @@ const WelcomeScreen: React.FC = () => {
 
                 {step === 'age' && (
                     <div className="animate-fadeIn space-y-10">
-                        <h2 className="text-2xl sm:text-3xl font-black text-[#0f172a] text-center leading-tight px-4">
-                            {currentLang === 'mk' ? `Мило ми е, ${nameInput}!` : `Nice to meet you, ${nameInput}!`}
-                            <br/>
-                            <span className="text-3xl sm:text-4xl block mt-2">
-                                {currentLang === 'mk' ? 'Колку години имаш?' : 'How old are you?'}
-                            </span>
-                        </h2>
+                        <div className="text-center px-4 space-y-2">
+                          <h2 className="text-2xl sm:text-3xl font-black text-[#0f172a] leading-tight">
+                              {currentLang === 'mk' ? `Мило ми е, ${nameInput}!` : `Nice to meet you, ${nameInput}!`}
+                          </h2>
+                          <p className="text-3xl sm:text-4xl font-black text-[#0f172a]">
+                              {t('age_selection.birthdate_prompt')}
+                          </p>
+                          <p className="text-sm font-bold text-slate-500 max-w-xs mx-auto italic mt-2">
+                             {t('age_selection.disclaimer')}
+                          </p>
+                        </div>
                         
                         <div className="relative w-full max-w-sm mx-auto">
                           <input
                               type="text"
                               inputMode="numeric"
-                              placeholder="dd.mm.yyyy"
-                              value={displayDate}
-                              onChange={handleDateChange}
-                              className="w-full bg-slate-50 border-b-4 border-slate-200 p-6 text-2xl sm:text-3xl font-black text-[#0f172a] focus:outline-none focus:border-[#F97316] transition-all text-center rounded-2xl shadow-sm"
+                              placeholder={t('age_selection.placeholder')}
+                              value={ageInput}
+                              onChange={handleAgeChange}
+                              className="w-full bg-slate-50 border-b-4 border-slate-200 p-6 text-3xl sm:text-4xl font-black text-[#0f172a] focus:outline-none focus:border-[#F97316] transition-all text-center rounded-2xl shadow-sm"
                           />
                         </div>
 
@@ -174,7 +154,7 @@ const WelcomeScreen: React.FC = () => {
                         
                         <div className="flex justify-center pt-4">
                           <button 
-                              onClick={validateDateAndFinish} 
+                              onClick={handleFinish} 
                               className="bg-[#F97316] text-white font-black px-12 py-5 rounded-2xl text-xl shadow-2xl hover:bg-[#14B8A6] hover:scale-105 active:scale-95 transition-all"
                           >
                               {currentLang === 'mk' ? "Започни!" : "Let's go!"}

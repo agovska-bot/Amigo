@@ -3,13 +3,12 @@ import React, { useState } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { useAppContext } from '../context/AppContext';
 import ScreenWrapper from '../components/ScreenWrapper';
-import { useTranslation } from '../hooks/useTranslation';
 import { Screen } from '../types';
 
 declare const __API_KEY__: string;
 
 const SocialDecoderScreen: React.FC = () => {
-  const { age, language, addReflection, addPoints, ageGroup, userName, setCurrentScreen } = useAppContext();
+  const { age, language, addCourageStars, ageGroup, userName, setCurrentScreen, showToast } = useAppContext();
   const [description, setDescription] = useState('');
   const [bubbles, setBubbles] = useState<string[]>([]);
   const [victoryMessage, setVictoryMessage] = useState<string>('');
@@ -25,8 +24,8 @@ const SocialDecoderScreen: React.FC = () => {
     try {
       const ai = new GoogleGenAI({ apiKey });
       const prompt = `You are Amigo, the Social Translator. ${userName} (${age}yo) describes: "${description}".
-      1. Exactly 3 logical "Signal Bubbles" (reasons).
-      2. A "Social Victory" message celebrating their bravery in reflecting.
+      1. Exactly 3 logical "Signal Bubbles" (reasons/explanations).
+      2. A "Social Victory" message celebrating their bravery.
       Respond in ${language === 'mk' ? 'Macedonian' : 'English'}. Bubbles < 12 words. Victory < 30 words.`;
 
       const res = await ai.models.generateContent({
@@ -49,8 +48,8 @@ const SocialDecoderScreen: React.FC = () => {
       setBubbles(json.bubbles || []);
       setVictoryMessage(json.victory || '');
       setShowResult(true);
-      addPoints('social', 10);
-      addReflection({ prompt: "Decoder Log", text: `${description}\nVictory: ${json.victory}`, date: new Date().toISOString(), category: 'social' });
+      addCourageStars(10);
+      showToast("+10 Courage Stars! 🌟");
     } catch (e) { console.error(e); } finally { setIsLoading(false); }
   };
 

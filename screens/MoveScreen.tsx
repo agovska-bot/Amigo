@@ -3,18 +3,17 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { useAppContext } from '../context/AppContext';
 import ScreenWrapper from '../components/ScreenWrapper';
-import { POINTS_PER_ACTIVITY } from '../constants';
 import { useTranslation } from '../hooks/useTranslation';
 
 declare const __API_KEY__: string;
 
 const MoveScreen: React.FC = () => {
-  const { addPoints, showToast, ageGroup, activeTasks, setActiveTask, age } = useAppContext();
-  const { t, language } = useTranslation();
+  const { addCourageStars, showToast, ageGroup, activeTasks, setActiveTask, age } = useAppContext();
+  const { language } = useTranslation();
   const [task, setTask] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
 
-  const currentAgeKey = ageGroup || '7-9';
+  const currentAgeKey = ageGroup || '10-12';
   const screenTitle = language === 'mk' ? "Daily Hero Missions" : "Daily Hero Missions";
 
   const getNewTask = useCallback(async (forceRefresh: boolean = false) => {
@@ -29,7 +28,6 @@ const MoveScreen: React.FC = () => {
       
       try {
         const ai = new GoogleGenAI({ apiKey });
-        // The prompt now focuses on "Small, safe social tasks" as requested
         const themes = ["greeting someone", "eye contact", "helping", "sharing a smile", "joining a group", "giving a compliment"];
         const randomTheme = themes[Math.floor(Math.random() * themes.length)];
 
@@ -64,16 +62,15 @@ const MoveScreen: React.FC = () => {
   }, [getNewTask]);
 
   const handleComplete = () => {
-    addPoints('social', POINTS_PER_ACTIVITY);
-    showToast(`+${POINTS_PER_ACTIVITY} Courage Stars! 🛡️`);
+    addCourageStars(15);
+    showToast("+15 Courage Stars! 🛡️");
     setActiveTask('move', null);
   };
 
   const theme = {
-    '7-9': { blob1: 'bg-lime-100', blob2: 'bg-lime-200', text: 'text-lime-800', button: 'bg-lime-500 hover:bg-lime-600', button2: 'bg-lime-100 text-lime-800' },
     '10-12': { blob1: 'bg-blue-50', blob2: 'bg-blue-100', text: 'text-blue-800', button: 'bg-blue-500 hover:bg-blue-600', button2: 'bg-blue-100 text-blue-800' },
     '12+': { blob1: 'bg-blue-100', blob2: 'bg-blue-200', text: 'text-blue-800', button: 'bg-blue-600 hover:bg-blue-700', button2: 'bg-blue-100 text-blue-800' }
-  }[currentAgeKey];
+  }[currentAgeKey as '10-12' | '12+'];
 
   return (
     <ScreenWrapper title={screenTitle}>
@@ -105,16 +102,6 @@ const MoveScreen: React.FC = () => {
             </button>
         </div>
       </div>
-       <style>{`
-        @keyframes blob {
-          0% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-          100% { transform: translate(0px, 0px) scale(1); }
-        }
-        .animate-blob { animation: blob 7s infinite; }
-        .animation-delay-2000 { animation-delay: 2s; }
-      `}</style>
     </ScreenWrapper>
   );
 };

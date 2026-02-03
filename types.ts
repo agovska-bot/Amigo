@@ -7,14 +7,20 @@ export enum Screen {
   CalmZone = 'CalmZoneScreen',
   Kindness = 'KindnessScreen',
   Reflection = 'ReflectionScreen',
-  AgeSelection = 'AgeSelectionScreen',
   StoryCreator = 'StoryCreatorScreen',
-  LanguageSelection = 'LanguageSelectionScreen',
   RapBattle = 'RapBattleScreen',
   SocialDecoder = 'SocialDecoderScreen',
   PracticeRoom = 'PracticeRoomScreen',
+  AgeSelection = 'AgeSelectionScreen',
+  LanguageSelection = 'LanguageSelectionScreen',
 }
 
+// FIX: Added '7-9' to AgeGroup to support all intended age categories and resolve type mismatch in App.tsx.
+export type AgeGroup = '7-9' | '10-12' | '12+';
+
+export type Language = 'en' | 'mk' | 'tr';
+
+// FIX: Defined Mood type and Entry interfaces to resolve property and import errors across the application.
 export type Mood = 'Happy' | 'Sad' | 'Angry' | 'Worried' | 'Tired';
 
 export interface MoodEntry {
@@ -24,26 +30,21 @@ export interface MoodEntry {
 }
 
 export interface ReflectionEntry {
-    prompt: string;
-    text: string;
-    date: string;
-    category?: 'general' | 'gratitude' | 'social';
+  prompt: string;
+  text: string;
+  date: string;
+  category: string;
 }
 
 export interface StoryEntry {
-    title: string;
-    content: string[];
-    date: string;
+  title: string;
+  content: string[];
+  date: string;
 }
 
-export interface Points {
-    gratitude: number;
-    physical: number;
-    kindness: number;
-    creativity: number;
-    social: number;
+export interface AppState {
+  userName: string | null;
+  age: number | null;
+  language: Language | null;
+  courageStars: number;
 }
-
-export type AgeGroup = '7-9' | '10-12' | '12+';
-
-export type Language = 'en' | 'mk' | 'tr';
