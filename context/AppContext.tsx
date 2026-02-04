@@ -4,7 +4,6 @@ import useLocalStorage from '../hooks/useLocalStorage';
 import { Screen, AgeGroup, Language, ActiveTasks } from '../types';
 import { GoogleGenAI, Type } from "@google/genai";
 
-// Ова го дефинира изгледот на сценаријата за вежбање во Вежбалницата
 interface PracticeScenario {
   title: string;
   prompt: string;
@@ -37,7 +36,6 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-// Основни сценарија ако интернетот е бавен
 const defaultScenarios: Record<Language, PracticeScenario[]> = {
   mk: [
     { title: "Нов пријател", prompt: "Запознај се со некој нов во училиште.", icon: "👫" },
@@ -51,17 +49,32 @@ const defaultScenarios: Record<Language, PracticeScenario[]> = {
   ]
 };
 
-// Преводи за сите копчиња и пораки во апликацијата
 const translations: Record<string, any> = {
   en: {
-    home: { tagline: "Turning Confusion into Understanding", decoder: "Decoder", practice: "Practice", chill: "Chill", missions: "Missions", delete_profile: "Delete Profile" },
+    home: { 
+      tagline: "Turning Confusion into Understanding", 
+      age_note: "Intended for ages 10-16, but Amigo is everyone's friend.",
+      decoder: "Decoder", 
+      practice: "Practice", 
+      chill: "Chill", 
+      missions: "Missions", 
+      delete_profile: "Delete Profile" 
+    },
     decoder: { title: "Social Decoder", placeholder: "What happened?", analyze: "Analyze", analyzing: "Thinking...", back: "Back", retry: "Try again." },
     practice: { title: "Practice Room", ai_thinking: "Amigo is thinking..." },
     chill: { title: "Chill Zone" },
     missions: { title: "Hero Missions", accept: "I ACCEPT!" }
   },
   mk: {
-    home: { tagline: "Од збунетост до разбирање", decoder: "Декодер", practice: "Вежбалница", chill: "Опуштање", missions: "Мисии", delete_profile: "Избриши профил" },
+    home: { 
+      tagline: "Од збунетост до разбирање", 
+      age_note: "Наменета за возраст 10-16 години, но Амиго е сечиј пријател.",
+      decoder: "Декодер", 
+      practice: "Вежбалница", 
+      chill: "Опуштање", 
+      missions: "Мисии", 
+      delete_profile: "Избриши профил" 
+    },
     decoder: { title: "Социјален Декодер", placeholder: "Што се случи?", analyze: "Анализирај", analyzing: "Размислувам...", back: "Назад", retry: "Пробај пак." },
     practice: { title: "Вежбалница", ai_thinking: "Амиго размислува..." },
     chill: { title: "Опуштање" },
@@ -81,7 +94,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [dailyPracticeTip, setDailyPracticeTip] = useState<string>('');
   const [isPracticeSyncing, setIsPracticeSyncing] = useState(false);
 
-  // Овде пресметуваме колку години има корисникот
   const age = useMemo(() => {
     if (!birthDate) return null;
     const ageNum = parseInt(birthDate, 10);
@@ -93,20 +105,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return age < 13 ? '10-12' : '12+';
   }, [age]);
 
-  // Покажува мала порака на дното на екранот
   const showToast = useCallback((msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   }, []);
 
-  // Оваа функција ги бара најновите вежби од Амиго (AI)
   const refreshPracticeData = useCallback(async () => {
     if (!userName || !age) return;
     setIsPracticeSyncing(true);
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const prompt = `Generate 6 social scenarios and 1 short tip for ${userName} (${age}yo). 
-      Lang: ${language === 'mk' ? 'Macedonian' : 'English'}. JSON only.`;
+      const prompt = `Generate 6 social scenarios and 1 short tip for ${userName} (${age}yo). Lang: ${language === 'mk' ? 'Macedonian' : 'English'}. JSON only.`;
 
       const res = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
@@ -138,24 +147,31 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const data = JSON.parse(res.text || '{}');
       if (data.tip) setDailyPracticeTip(data.tip);
       if (data.scenarios?.length > 0) setPracticeScenarios(data.scenarios);
-    } catch (e) { console.error(e); }
-    finally { setIsPracticeSyncing(false); }
-  }, [userName, age, language]);
+    } catch (e: any) {
+      console.error("API Error:", e);
+      if (e.message?.includes('429') || e.status === 429) {
+        showToast(language === 'mk' ? 'Амиго е малку зафатен, пробај пак за момент.' : 'Amigo is a bit busy, try again in a moment.');
+      }
+    } finally {
+      setIsPracticeSyncing(false);
+    }
+  }, [userName, age, language, showToast]);
 
   useEffect(() => {
-    if (userName && age && language) refreshPracticeData();
+    const timer = setTimeout(() => {
+        if (userName && age && language) refreshPracticeData();
+    }, 800); // Debounce to prevent rapid sequential calls on init
+    return () => clearTimeout(timer);
   }, [userName, age, language, refreshPracticeData]);
 
   const setActiveTask = (task: keyof ActiveTasks, value: string | null) => 
     setActiveTasks(prev => ({ ...prev, [task]: value }));
 
-  // Го брише профилот и ја враќа апликацијата на почеток
   const resetApp = useCallback(() => {
     localStorage.clear();
     window.location.reload();
   }, []);
 
-  // Функција која ни кажува како се вели нешто на македонски или англиски
   const t = useCallback((key: string, fallback?: string) => {
     const dict = translations[language || 'en'] || translations.en;
     const keys = key.split('.');

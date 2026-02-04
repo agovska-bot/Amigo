@@ -4,7 +4,6 @@ import { useAppContext } from '../context/AppContext';
 import { Screen } from '../types';
 import ScreenWrapper from '../components/ScreenWrapper';
 
-// Ова е копчето за секоја од четирите главни опции
 const MenuButton: React.FC<{ title: string; icon: string; color: string; onClick: () => void; rounded: string }> = ({ title, icon, color, onClick, rounded }) => (
     <button 
         onClick={onClick}
@@ -19,7 +18,6 @@ const HomeScreen: React.FC = () => {
   const { setCurrentScreen, t, ageGroup, resetApp, language } = useAppContext();
   const isPro = ageGroup === '12+';
 
-  // Боите на менито се менуваат ако корисникот е постар
   const themes = {
     '10-12': {
       bg: 'bg-slate-50',
@@ -43,17 +41,20 @@ const HomeScreen: React.FC = () => {
     <div className={`min-h-screen w-full ${isPro ? 'bg-slate-900' : 'bg-slate-50'}`}>
       <ScreenWrapper title="" showBackButton={false}>
         
-        {/* Главниот наслов на апликацијата */}
-        <div className="flex flex-col items-center justify-center pt-10 mb-10">
-            <h1 className={`text-6xl font-black tracking-tighter ${isPro ? 'text-white' : 'text-slate-900'}`}>
+        {/* Главниот наслов */}
+        <div className="flex flex-col items-center justify-center pt-10 mb-8 text-center">
+            <h1 className="text-6xl font-black tracking-tighter text-slate-900">
                 Amigo
             </h1>
-            <p className={`text-[10px] font-bold uppercase tracking-[0.2em] mt-4 text-center px-4 ${isPro ? 'text-slate-400' : 'text-slate-500'}`}>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] mt-4 text-slate-500 px-4">
                 {tagline}
+            </p>
+            <p className="text-[9px] font-bold text-slate-400 mt-2 px-6 italic leading-tight">
+                {t('home.age_note')}
             </p>
         </div>
 
-        {/* Четирите главни коцки за избор */}
+        {/* Четирите главни коцки */}
         <div className="grid grid-cols-2 gap-4 w-full max-w-[320px] mx-auto p-4 bg-white/50 rounded-[2.5rem] shadow-xl border border-white">
             <MenuButton 
                 title={t('home.decoder')}
@@ -85,10 +86,14 @@ const HomeScreen: React.FC = () => {
             />
         </div>
 
-        {/* Дното на екранот со авторите и годината */}
-        <div className="mt-auto flex flex-col items-center gap-2 py-8">
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">by Damjan Agovski & Daijan Selmani</p>
-            <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">ASEF 2026.</p>
+        {/* Дното на екранот со авторите */}
+        <div className="mt-auto flex flex-col items-center gap-2 py-8 text-center">
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+              by Damjan Agovski & Daijan Selmani
+            </p>
+            <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">
+              ASEF 2026.
+            </p>
             <button 
                 onClick={resetApp}
                 className="mt-4 text-[9px] font-bold uppercase tracking-widest text-slate-300 hover:text-red-400 underline"
