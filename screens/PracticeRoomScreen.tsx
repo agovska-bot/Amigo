@@ -29,28 +29,22 @@ const PracticeRoomScreen: React.FC = () => {
     setIsLoading(true);
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     
-    const systemInstruction = `You are a person in this scenario: "${scenario.prompt}".
-    The user is ${userName} (aged 10-16). 
-    
-    SIMULATION RULES:
-    1. Act authentically as the other person (peer, teacher, or relative).
-    2. Vocabulary: Natural and relatable for a teen. No baby talk, no corporate jargon.
-    3. Be direct: Max 1-2 sentences.
-    4. Help ${userName} practice a social skill (asking, explaining, or listening).
-    
-    Language: ${language === 'mk' ? 'Macedonian' : 'English'}. Respond in the user's language.`;
+    const systemInstruction = `Roleplay: ${scenario.prompt}. User is ${userName}.
+    Act as the other person. Max 2 sentences. Relatable teen lang. 
+    Instant mode. Language: ${language === 'mk' ? 'Macedonian' : 'English'}.`;
 
     const chat = ai.chats.create({
         model: 'gemini-3-flash-preview',
         config: {
             systemInstruction,
+            temperature: 0.8,
             thinkingConfig: { thinkingBudget: 0 }
         }
     });
     
     setCurrentChat(chat);
     try {
-        const res = await chat.sendMessage({ message: `Hey, it's ${userName}.` });
+        const res = await chat.sendMessage({ message: `Hi, I am ${userName}. Start convo.` });
         setMessages([{ role: 'ai', text: res.text || '' }]);
     } catch (e) { 
         console.error(e); 
@@ -96,7 +90,7 @@ const PracticeRoomScreen: React.FC = () => {
                     key={i} 
                     onClick={() => startPractice(s)} 
                     className="w-full p-5 rounded-[2rem] text-left border-2 bg-white hover:border-teal-400 hover:shadow-lg transition-all group flex flex-col gap-3 border-slate-100 shadow-sm active:scale-95 animate-slideUp"
-                    style={{ animationDelay: `${i * 80}ms` }}
+                    style={{ animationDelay: `${i * 50}ms` }}
                 >
                     <div className="flex items-center justify-between">
                         <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform shadow-inner">
@@ -115,7 +109,7 @@ const PracticeRoomScreen: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="flex flex-col h-[75vh]">
+          <div className="flex flex-col h-[70vh]">
             <div className="flex items-center gap-3 mb-4 p-3 bg-indigo-50 rounded-2xl border border-indigo-100">
                 <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
                 <p className="text-[10px] font-black uppercase text-indigo-600 tracking-widest">Симулацијата е активна</p>
@@ -129,6 +123,11 @@ const PracticeRoomScreen: React.FC = () => {
                         </div>
                     </div>
                 ))}
+                {isLoading && (
+                  <div className="flex justify-start animate-pulse">
+                    <div className="bg-slate-100 p-4 rounded-2xl rounded-bl-none text-slate-400 font-bold text-xs">...</div>
+                  </div>
+                )}
             </div>
 
             <div className="mt-4 flex gap-2 bg-slate-100 p-2 rounded-[2.5rem] shadow-inner border border-slate-200">
@@ -144,10 +143,10 @@ const PracticeRoomScreen: React.FC = () => {
                 disabled={isLoading}
                 className="bg-indigo-600 text-white w-12 h-12 rounded-full flex items-center justify-center font-black text-xl active:scale-90 disabled:opacity-50"
               >
-                {isLoading ? '...' : '➔'}
+                ➔
               </button>
             </div>
-            <button onClick={() => {setCurrentChat(null); setMessages([]);}} className="mt-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center py-2 underline decoration-dotted">
+            <button onClick={() => {setCurrentChat(null); setMessages([]);}} className="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center py-2 underline decoration-dotted">
                 {language === 'mk' ? 'Заврши симулација' : 'End Simulation'}
             </button>
           </div>

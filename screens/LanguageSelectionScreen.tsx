@@ -1,56 +1,31 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Language } from '../types';
-
-const MariachiLogo: React.FC<{ size?: string }> = ({ size = "w-56 h-56" }) => (
-    <div className={`relative flex flex-col items-center justify-center ${size} group animate-float`}>
-        <div className="absolute inset-0 bg-teal-400/10 rounded-full blur-3xl"></div>
-        
-        {/* Sombrero Hat (SVG) */}
-        <div className="relative z-20 -mb-8 transform scale-125">
-            <svg width="140" height="70" viewBox="0 0 140 70" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-lg">
-                <path d="M10 55 C10 45 30 35 70 35 C110 35 130 45 130 55 L130 65 C130 68 110 70 70 70 C30 70 10 68 10 65 Z" fill="#FACC15" stroke="#854D0E" strokeWidth="2"/>
-                <path d="M45 40 C45 10 95 10 95 40" fill="#FACC15" stroke="#854D0E" strokeWidth="2"/>
-                <path d="M48 38 C55 28 85 28 92 38" fill="none" stroke="#DC2626" strokeWidth="3" strokeLinecap="round"/>
-            </svg>
-        </div>
-        
-        {/* Friendly Emoticon Face */}
-        <span className="text-8xl relative z-10 filter drop-shadow-xl select-none">😊</span>
-        
-        <div className="absolute top-2 right-2 animate-bounce delay-150 text-2xl">🎸</div>
-        <div className="absolute bottom-6 left-2 animate-bounce text-2xl">🎺</div>
-    </div>
-);
 
 const WelcomeScreen: React.FC = () => {
   const { setLanguage, setUserName, setBirthDate, language: currentLang } = useAppContext();
   
+  // Чуваме на кој чекор сме (име или години)
   const [step, setStep] = useState<'name' | 'age'>('name');
   const [nameInput, setNameInput] = useState('');
   const [ageInput, setAgeInput] = useState('');
   const [error, setError] = useState<string | null>(null);
 
+  // Оваа функција препознава дали пишуваш на македонски или англиски
   const detectLanguage = (input: string): Language => {
     const cyrillicPattern = /[\u0400-\u04FF]/;
-    const mkLatinPattern = /(zdravo|kako si|sto pravis|fala|blagodaram|dobro)/i;
-    if (cyrillicPattern.test(input) || mkLatinPattern.test(input)) return 'mk';
+    if (cyrillicPattern.test(input)) return 'mk';
     return 'en';
   };
 
-  const detectedLang = useMemo(() => detectLanguage(nameInput), [nameInput]);
-  const isMk = detectedLang === 'mk' || currentLang === 'mk';
+  const isMk = useMemo(() => detectLanguage(nameInput) === 'mk' || currentLang === 'mk', [nameInput, currentLang]);
 
-  useEffect(() => {
-    if (nameInput.trim().length > 0) {
-      setLanguage(detectLanguage(nameInput));
-    }
-  }, [nameInput, setLanguage]);
-
+  // Се активира кога ќе го напишеш името
   const handleNameConfirm = () => {
     if (nameInput.trim().length >= 2) {
       setUserName(nameInput.trim());
+      setLanguage(detectLanguage(nameInput));
       setError(null);
       setStep('age');
     } else {
@@ -58,112 +33,90 @@ const WelcomeScreen: React.FC = () => {
     }
   };
 
+  // Се активира кога ќе ги внесеш годините
   const handleFinish = () => {
     const ageNum = parseInt(ageInput, 10);
     if (isNaN(ageNum) || ageNum < 3 || ageNum > 100) {
-      setError(isMk ? 'Внеси ги твоите години' : 'Enter your age');
+      setError(isMk ? 'Внеси колку години имаш' : 'Enter your age');
       return;
     }
     setBirthDate(ageInput);
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-slate-50 flex flex-col items-center justify-center p-6 overflow-hidden">
-      {/* Soft Cinematic Background Elements */}
-      <div className="fixed top-[-20%] right-[-10%] w-[60rem] h-[60rem] bg-teal-500/5 rounded-full filter blur-[150px]"></div>
-      <div className="fixed bottom-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-orange-400/5 rounded-full filter blur-[120px]"></div>
-      
-      <div className="w-full max-w-md flex flex-col items-center animate-fadeIn relative z-10">
+    <div className="min-h-screen w-full bg-slate-50 flex flex-col items-center justify-center p-6 font-sans">
+      <div className="w-full max-w-sm flex flex-col items-center animate-fadeIn">
         
-        {/* Support Badge */}
-        <div className="mb-4 bg-teal-100 text-teal-800 px-5 py-1.5 rounded-full text-[11px] font-black uppercase tracking-[0.2em] shadow-sm">
-            {isMk ? 'Твојот пријател за разбирање' : 'Your Partner for Understanding'}
-        </div>
-
-        <div className="mb-8 relative group">
-            <MariachiLogo />
+        {/* Ознака на најгорниот дел */}
+        <div className="mb-10 bg-teal-50 text-teal-700 px-6 py-2 rounded-full border border-teal-100 shadow-sm text-center">
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] leading-relaxed block">
+                {isMk ? 'Од збунетост до разбирање' : 'Turning Confusion into Understanding'}
+            </span>
         </div>
         
-        <div className="w-full text-center space-y-8">
+        <div className="w-full text-center space-y-10">
             {step === 'name' ? (
                 <div className="space-y-8 animate-slideUp">
-                    <div className="space-y-3">
-                        <h2 className="text-4xl font-black text-slate-900 leading-tight tracking-tight">
+                    <div className="space-y-2">
+                        <h2 className="text-6xl font-black text-slate-900 leading-tight tracking-tight">
                             ¡Hola!<br/>
                             {isMk ? 'Јас сум Амиго.' : 'I am Amigo.'}
                         </h2>
-                        <p className="text-xl font-bold text-slate-500">
+                        <p className="text-xl font-bold text-slate-500 pt-4">
                             {isMk ? 'Како се викаш?' : 'What is your name?'}
-                        </p>
-                    </div>
-                    
-                    <div className="relative">
-                        <input
-                            type="text"
-                            placeholder="..."
-                            autoFocus
-                            value={nameInput}
-                            onChange={(e) => setNameInput(e.target.value)}
-                            className="w-full bg-white border-4 border-slate-100 p-6 text-3xl font-black text-slate-900 focus:outline-none focus:border-teal-400 transition-all text-center rounded-[2.5rem] shadow-xl"
-                        />
-                    </div>
-
-                    {error && <p className="text-red-500 font-bold animate-shake">{error}</p>}
-                    
-                    <button 
-                        onClick={handleNameConfirm} 
-                        className="w-full bg-slate-900 text-white font-black py-6 rounded-[2.5rem] text-2xl shadow-2xl hover:bg-slate-800 active:scale-95 transition-all flex items-center justify-center gap-3"
-                    >
-                        {isMk ? 'ПРОДОЛЖИ' : 'CONTINUE'} <span className="text-2xl">🛡️</span>
-                    </button>
-                </div>
-            ) : (
-                <div className="space-y-8 animate-slideUp">
-                    <div className="space-y-3">
-                        <h2 className="text-4xl font-black text-slate-900 leading-tight">
-                            {isMk ? `Мило ми е, ${nameInput}!` : `Nice to meet you, ${nameInput}!`}
-                        </h2>
-                        <p className="text-xl font-bold text-slate-500">
-                            {isMk ? 'Колку години имаш?' : 'How old are you?'}
                         </p>
                     </div>
                     
                     <input
                         type="text"
-                        inputMode="numeric"
+                        placeholder="..."
+                        autoFocus
+                        value={nameInput}
+                        onChange={(e) => setNameInput(e.target.value)}
+                        className="w-full bg-white border-4 border-slate-100 p-6 text-3xl font-black text-slate-900 focus:outline-none focus:border-teal-400 transition-all text-center rounded-[2rem] shadow-xl"
+                    />
+
+                    {error && <p className="text-red-500 font-bold">{error}</p>}
+                    
+                    <button 
+                        onClick={handleNameConfirm} 
+                        className="w-full bg-slate-900 text-white font-black py-6 rounded-[2rem] text-xl shadow-lg active:scale-95 transition-all"
+                    >
+                        {isMk ? 'ПРОДОЛЖИ' : 'CONTINUE'}
+                    </button>
+                </div>
+            ) : (
+                <div className="space-y-8 animate-slideUp">
+                    <div className="space-y-2">
+                        <h2 className="text-5xl font-black text-slate-900 leading-tight">
+                            {isMk ? `Мило ми е, ${nameInput}!` : `Nice to meet you, ${nameInput}!`}
+                        </h2>
+                        <p className="text-xl font-bold text-slate-500 pt-4">
+                            {isMk ? 'Колку години имаш?' : 'How old are you?'}
+                        </p>
+                    </div>
+                    
+                    <input
+                        type="number"
                         placeholder="--"
                         autoFocus
                         value={ageInput}
-                        onChange={(e) => setAgeInput(e.target.value.replace(/\D/g, ''))}
-                        className="w-40 bg-white border-4 border-slate-100 p-6 text-6xl font-black text-slate-900 focus:outline-none focus:border-orange-400 transition-all text-center rounded-[3rem] shadow-xl mx-auto block"
+                        onChange={(e) => setAgeInput(e.target.value)}
+                        className="w-40 bg-white border-4 border-slate-100 p-6 text-5xl font-black text-slate-900 focus:outline-none focus:border-orange-400 transition-all text-center rounded-[2.5rem] shadow-xl mx-auto block"
                     />
 
-                    {error && <p className="text-red-500 font-bold animate-shake">{error}</p>}
+                    {error && <p className="text-red-500 font-bold">{error}</p>}
 
                     <button 
                         onClick={handleFinish} 
-                        className="w-full bg-orange-500 text-white font-black py-6 rounded-[2.5rem] text-2xl shadow-2xl hover:bg-orange-600 active:scale-95 transition-all"
+                        className="w-full bg-orange-500 text-white font-black py-6 rounded-[2rem] text-xl shadow-lg active:scale-95 transition-all"
                     >
-                        {isMk ? 'ЗАПОЧНИ' : 'START'} <span className="ml-2">🌟</span>
+                        {isMk ? 'ЗАПОЧНИ' : 'START'}
                     </button>
                 </div>
             )}
         </div>
       </div>
-
-      <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-        }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-        .animate-float { animation: float 4s ease-in-out infinite; }
-        .animate-fadeIn { animation: fadeIn 1s ease-out forwards; }
-        .animate-slideUp { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .animate-shake { animation: shake 0.2s ease-in-out 2; }
-      `}</style>
     </div>
   );
 };

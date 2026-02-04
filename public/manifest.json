@@ -4,7 +4,7 @@
   "name": "Amigo | Social Translator",
   "description": "Turning Social Confusion into Understanding.",
   "id": "amigo-social-translator",
-  "start_url": "./index.html",
+  "start_url": "index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
@@ -13,7 +13,7 @@
   "categories": ["education", "social"],
   "icons": [
     {
-      "src": "./logo.png",
+      "src": "logo_512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

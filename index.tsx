@@ -1,3 +1,4 @@
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -17,28 +18,28 @@ root.render(
   </React.StrictMode>
 );
 
-// Безбедно регистрирање на Service Worker
+// Паметно регистрирање на Service Worker
 if ('serviceWorker' in navigator) {
-  // Проверка дали сме во ограничена околина (sandbox) како ai.studio или usercontent.goog
-  // Service Workers честопати не се дозволени во овие прегледи и предизвикуваат грешки со доменот.
-  const isRestricted = 
-    window.location.hostname.includes('usercontent.goog') || 
-    window.location.hostname.includes('ai.studio') ||
-    window.location.protocol === 'file:';
+  window.addEventListener('load', () => {
+    const hostname = window.location.hostname;
+    // Листа на домени каде што Service Worker НЕ треба да се регистрира (тест околини)
+    const isTestEnv = 
+      hostname.includes('usercontent.goog') || 
+      hostname.includes('ai.studio') || 
+      hostname.includes('localhost') ||
+      window.location.protocol === 'file:';
 
-  if (!isRestricted) {
-    window.addEventListener('load', () => {
-      // Користиме релативен пат ('service-worker.js') наместо апсолутен ('/service-worker.js')
-      // Ова спречува грешки каде прелистувачот мисли дека фајлот е на главниот домен на Google.
-      navigator.serviceWorker.register('service-worker.js')
+    if (!isTestEnv) {
+      navigator.serviceWorker.register('./service-worker.js')
         .then(registration => {
-          console.log('Amigo ServiceWorker активен');
+          console.log('Amigo PWA: Активен');
         })
         .catch(error => {
-          console.debug('ServiceWorker регистрирањето не успеа (очекувано во некои околини):', error.message);
+          // Тивко запишување само ако навистина е критично
+          console.debug('ServiceWorker bypass on this origin');
         });
-    });
-  } else {
-    console.debug('Регистрирањето на ServiceWorker е прескокнато поради ограничена околина (sandbox).');
-  }
+    } else {
+      console.log('Amigo: ServiceWorker е оневозможен во тест околина за да се избегне Origin Error.');
+    }
+  });
 }
