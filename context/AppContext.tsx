@@ -82,7 +82,13 @@ const translations: Record<string, any> = {
       done: "Done",
       step_label: "Step"
     },
-    missions: { title: "Hero Missions", accept: "I ACCEPT!" }
+    missions: { 
+      title: "Hero Missions", 
+      accept: "I ACCEPT!",
+      thinking: "Amigo is thinking...",
+      footer: "Confidence is your true reward",
+      default_task: "Say hi to someone today!"
+    }
   },
   mk: {
     home: { 
@@ -108,7 +114,7 @@ const translations: Record<string, any> = {
       title: "Опуштање",
       calibration_label: "Ментална Калибрација",
       grounding_technique: "Техника 5-4-3-2-1",
-      grounding_desc: "Полека помини низ овие чекори за да се вратиш во сегашниот момент.",
+      grounding_desc: "Полека помини низ овие чекори за да се вратиш во сегашноста.",
       request_new: "Нова фреквенција",
       deep_calib: "Длабока Калибрација",
       calib_desc: "Фокус на ритам и мисли",
@@ -116,7 +122,13 @@ const translations: Record<string, any> = {
       done: "Заврши",
       step_label: "Чекор"
     },
-    missions: { title: "Мисии", accept: "ПРИФАЌАМ!" }
+    missions: { 
+      title: "Мисии", 
+      accept: "ПРИФАЌАМ!",
+      thinking: "Амиго смислува мисија...",
+      footer: "Самодовербата е твојата вистинска награда",
+      default_task: "Поздрави некого денес!"
+    }
   }
 };
 
@@ -128,24 +140,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [currentScreen, setCurrentScreen] = useState<Screen>(Screen.Home);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const [practiceScenarios, setPracticeScenarios] = useState<PracticeScenario[]>([]);
-  const [dailyPracticeTip, setDailyPracticeTip] = useState<string>('');
+  const [practiceScenarios, setPracticeScenarios] = useLocalStorage<PracticeScenario[]>('practiceScenarios', []);
+  const [dailyPracticeTip, setDailyPracticeTip] = useLocalStorage<string>('dailyPracticeTip', '');
   const [isPracticeSyncing, setIsPracticeSyncing] = useState(false);
 
-  // Identify if current scenarios are standard defaults
-  const isUsingDefaults = useMemo(() => {
-    const mkJson = JSON.stringify(defaultScenarios.mk);
-    const enJson = JSON.stringify(defaultScenarios.en);
-    const currentJson = JSON.stringify(practiceScenarios);
-    return practiceScenarios.length === 0 || currentJson === mkJson || currentJson === enJson;
-  }, [practiceScenarios]);
-
-  // Sync scenarios with language when no custom AI data is available
+  // Sync scenarios with language whenever language changes
   useEffect(() => {
-    if (isUsingDefaults) {
-      setPracticeScenarios(defaultScenarios[language || 'en']);
+    if (language && practiceScenarios.length === 0) {
+      setPracticeScenarios(defaultScenarios[language]);
     }
-  }, [language, isUsingDefaults]);
+  }, [language, practiceScenarios.length, setPracticeScenarios]);
 
   const age = useMemo(() => {
     if (!birthDate) return null;
@@ -162,6 +166,28 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   }, []);
+
+  const t = useCallback((key: string, fallback?: string) => {
+    const keys = key.split('.');
+    let value = translations[language || 'en'];
+    for (const k of keys) {
+      if (value && value[k]) {
+        value = value[k];
+      } else {
+        return fallback || key;
+      }
+    }
+    return value;
+  }, [language]);
+
+  const resetApp = useCallback(() => {
+    window.localStorage.clear();
+    window.location.reload();
+  }, []);
+
+  const setActiveTask = useCallback((task: keyof ActiveTasks, value: string | null) => {
+    setActiveTasks(prev => ({ ...prev, [task]: value }));
+  }, [setActiveTasks]);
 
   const refreshPracticeData = useCallback(async () => {
     if (!userName || !age || !language) return;
@@ -197,64 +223,57 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         }
       });
       
-      const data = JSON.parse(res.text || '{}');
+      const text = res.text?.trim() || '{}';
+      const data = JSON.parse(text);
       if (data.tip) setDailyPracticeTip(data.tip);
-      if (data.scenarios?.length > 0) setPracticeScenarios(data.scenarios);
-    } catch (e: any) {
-      console.error("API Error:", e);
-      if (e.message?.includes('429') || e.status === 429) {
-        showToast(language === 'mk' ? 'Амиго е малку зафатен, пробај пак за момент.' : 'Amigo is a bit busy, try again in a moment.');
-      }
+      if (data.scenarios) setPracticeScenarios(data.scenarios);
+    } catch (error) {
+      console.error("Failed to refresh practice data:", error);
+      showToast("Could not update missions.");
     } finally {
       setIsPracticeSyncing(false);
     }
-  }, [userName, age, language, showToast]);
+  }, [userName, age, language, setDailyPracticeTip, setPracticeScenarios, showToast]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-        if (userName && age && language) refreshPracticeData();
-    }, 1200); // Slightly longer delay to allow language to settle
-    return () => clearTimeout(timer);
-  }, [userName, age, language, refreshPracticeData]);
-
-  const setActiveTask = (task: keyof ActiveTasks, value: string | null) => 
-    setActiveTasks(prev => ({ ...prev, [task]: value }));
-
-  const resetApp = useCallback(() => {
-    localStorage.clear();
-    window.location.reload();
-  }, []);
-
-  const t = useCallback((key: string, fallback?: string) => {
-    const dict = translations[language || 'en'] || translations.en;
-    const keys = key.split('.');
-    let result = dict;
-    for (const k of keys) {
-      if (result && result[k]) result = result[k];
-      else return fallback || key;
-    }
-    return result;
-  }, [language]);
+  const value = useMemo(() => ({
+    currentScreen,
+    setCurrentScreen,
+    userName,
+    setUserName,
+    toastMessage,
+    showToast,
+    birthDate,
+    setBirthDate,
+    age,
+    ageGroup,
+    language,
+    setLanguage,
+    activeTasks,
+    setActiveTask,
+    practiceScenarios,
+    dailyPracticeTip,
+    isPracticeSyncing,
+    refreshPracticeData,
+    t,
+    resetApp
+  }), [
+    currentScreen, userName, setUserName, toastMessage, showToast, birthDate, setBirthDate, 
+    age, ageGroup, language, setLanguage, activeTasks, setActiveTask, 
+    practiceScenarios, dailyPracticeTip, isPracticeSyncing, refreshPracticeData, t, resetApp
+  ]);
 
   return (
-    <AppContext.Provider value={{
-      currentScreen, setCurrentScreen,
-      userName, setUserName,
-      toastMessage, showToast,
-      birthDate, setBirthDate,
-      age, ageGroup,
-      language, setLanguage,
-      activeTasks, setActiveTask,
-      practiceScenarios, dailyPracticeTip, isPracticeSyncing, refreshPracticeData,
-      t, resetApp
-    }}>
+    <AppContext.Provider value={value}>
       {children}
     </AppContext.Provider>
   );
 };
 
+// FIX: Export useAppContext hook so it can be used in other components.
 export const useAppContext = () => {
   const context = useContext(AppContext);
-  if (!context) throw new Error('useAppContext must be used within AppProvider');
+  if (context === undefined) {
+    throw new Error('useAppContext must be used within an AppProvider');
+  }
   return context;
 };

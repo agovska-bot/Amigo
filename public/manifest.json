@@ -11,12 +11,5 @@
   "theme_color": "#14b8a6",
   "background_color": "#ffffff",
   "categories": ["education", "social"],
-  "icons": [
-    {
-      "src": "logo_512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ]
+  "icons": []
 }
