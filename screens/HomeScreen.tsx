@@ -16,8 +16,7 @@ const PuzzleButton: React.FC<{ title: string; icon: string; color: string; onCli
 );
 
 const HomeScreen: React.FC = () => {
-  const { setCurrentScreen, courageStars, resetApp, language, ageGroup } = useAppContext();
-  const isPro = ageGroup === '12+';
+  const { setCurrentScreen, courageStars, resetApp, language } = useAppContext();
 
   const handleReset = () => {
     const msg = language === 'mk' ? "Дали сте сигурни дека сакате да го ресетирате профилот?" : "Are you sure you want to reset your profile?";
@@ -25,7 +24,7 @@ const HomeScreen: React.FC = () => {
   };
 
   return (
-    <div className={`min-h-screen w-full transition-colors duration-1000 ${isPro ? 'bg-slate-900' : 'bg-slate-50'}`}>
+    <div className="min-h-screen w-full bg-slate-50 transition-colors duration-1000">
       <ScreenWrapper title="" showBackButton={false}>
         
         {/* Brand Section */}
@@ -35,7 +34,7 @@ const HomeScreen: React.FC = () => {
             </div>
             
             <div className="text-center mt-[-10px] z-20">
-                <h1 className={`text-5xl font-black tracking-tighter ${isPro ? 'text-white' : 'text-slate-900'}`}>
+                <h1 className="text-5xl font-black tracking-tighter text-slate-900">
                     Amigo
                 </h1>
                 <p className="text-[9px] font-black uppercase tracking-[0.4em] text-teal-600">
@@ -45,7 +44,7 @@ const HomeScreen: React.FC = () => {
         </div>
 
         {/* Activity Grid */}
-        <div className="grid grid-cols-2 gap-2 w-full max-w-[260px] mx-auto p-2 bg-white/10 rounded-[2.5rem] backdrop-blur-sm">
+        <div className="grid grid-cols-2 gap-2 w-full max-w-[260px] mx-auto p-2 bg-white/50 rounded-[2.5rem] backdrop-blur-sm border border-white">
             <PuzzleButton 
                 title={language === 'mk' ? "Декодер" : "Decoder"}
                 icon="🔍"
@@ -76,7 +75,7 @@ const HomeScreen: React.FC = () => {
             />
         </div>
 
-        {/* Stats */}
+        {/* Stats Section & Credits */}
         <div className="mt-6 flex flex-col items-center gap-3 pb-4">
             <div className="bg-white/90 px-5 py-2 rounded-full shadow-md border-2 border-white flex items-center gap-2">
                 <span className="text-lg">🌟</span>
@@ -85,10 +84,19 @@ const HomeScreen: React.FC = () => {
 
             <button 
                 onClick={handleReset}
-                className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-300 hover:text-red-500 transition-colors py-2 px-4 underline"
+                className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-red-500 transition-colors py-1 px-4 underline"
             >
                 {language === 'mk' ? 'Избриши профил' : 'Reset Profile'}
             </button>
+
+            <div className="text-center mt-4">
+                <p className="text-[10px] font-bold text-slate-400">
+                  by Damjan Agovski & Daijan Selmani
+                </p>
+                <p className="text-[11px] font-black text-teal-600">
+                  ASEF 2026
+                </p>
+            </div>
         </div>
 
       </ScreenWrapper>
