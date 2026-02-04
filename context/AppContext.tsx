@@ -61,8 +61,27 @@ const translations: Record<string, any> = {
       delete_profile: "Delete Profile" 
     },
     decoder: { title: "Social Decoder", placeholder: "What happened?", analyze: "Analyze", analyzing: "Thinking...", back: "Back", retry: "Try again." },
-    practice: { title: "Practice Room", ai_thinking: "Amigo is thinking..." },
-    chill: { title: "Chill Zone" },
+    practice: { 
+      title: "Practice Room", 
+      ai_thinking: "Amigo is thinking...",
+      active_status: "Simulation is active",
+      end_sim: "End Simulation",
+      say_something: "Say something...",
+      select_situation: "SELECT SITUATION",
+      insight_label: "Amigo Insight"
+    },
+    chill: { 
+      title: "Chill Zone",
+      calibration_label: "Mental Calibration",
+      grounding_technique: "5-4-3-2-1 Technique",
+      grounding_desc: "Slowly go through these steps to return to the present moment.",
+      request_new: "Request New Frequency",
+      deep_calib: "Deep Calibration",
+      calib_desc: "Focus on rhythm and thoughts",
+      better: "I feel better",
+      done: "Done",
+      step_label: "Step"
+    },
     missions: { title: "Hero Missions", accept: "I ACCEPT!" }
   },
   mk: {
@@ -76,8 +95,27 @@ const translations: Record<string, any> = {
       delete_profile: "Избриши профил" 
     },
     decoder: { title: "Социјален Декодер", placeholder: "Што се случи?", analyze: "Анализирај", analyzing: "Размислувам...", back: "Назад", retry: "Пробај пак." },
-    practice: { title: "Вежбалница", ai_thinking: "Амиго размислува..." },
-    chill: { title: "Опуштање" },
+    practice: { 
+      title: "Вежбалница", 
+      ai_thinking: "Амиго размислува...",
+      active_status: "Симулацијата е активна",
+      end_sim: "Заврши симулација",
+      say_something: "Кажи нешто...",
+      select_situation: "ИЗБЕРИ СИТУАЦИЈА",
+      insight_label: "Амиго Совет"
+    },
+    chill: { 
+      title: "Опуштање",
+      calibration_label: "Ментална Калибрација",
+      grounding_technique: "Техника 5-4-3-2-1",
+      grounding_desc: "Полека помини низ овие чекори за да се вратиш во сегашниот момент.",
+      request_new: "Нова фреквенција",
+      deep_calib: "Длабока Калибрација",
+      calib_desc: "Фокус на ритам и мисли",
+      better: "Се чувствувам подобро",
+      done: "Заврши",
+      step_label: "Чекор"
+    },
     missions: { title: "Мисии", accept: "ПРИФАЌАМ!" }
   }
 };
@@ -90,9 +128,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [currentScreen, setCurrentScreen] = useState<Screen>(Screen.Home);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const [practiceScenarios, setPracticeScenarios] = useState<PracticeScenario[]>(defaultScenarios[language || 'en']);
+  const [practiceScenarios, setPracticeScenarios] = useState<PracticeScenario[]>([]);
   const [dailyPracticeTip, setDailyPracticeTip] = useState<string>('');
   const [isPracticeSyncing, setIsPracticeSyncing] = useState(false);
+
+  // Identify if current scenarios are standard defaults
+  const isUsingDefaults = useMemo(() => {
+    const mkJson = JSON.stringify(defaultScenarios.mk);
+    const enJson = JSON.stringify(defaultScenarios.en);
+    const currentJson = JSON.stringify(practiceScenarios);
+    return practiceScenarios.length === 0 || currentJson === mkJson || currentJson === enJson;
+  }, [practiceScenarios]);
+
+  // Sync scenarios with language when no custom AI data is available
+  useEffect(() => {
+    if (isUsingDefaults) {
+      setPracticeScenarios(defaultScenarios[language || 'en']);
+    }
+  }, [language, isUsingDefaults]);
 
   const age = useMemo(() => {
     if (!birthDate) return null;
@@ -111,7 +164,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, []);
 
   const refreshPracticeData = useCallback(async () => {
-    if (!userName || !age) return;
+    if (!userName || !age || !language) return;
     setIsPracticeSyncing(true);
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -160,7 +213,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   useEffect(() => {
     const timer = setTimeout(() => {
         if (userName && age && language) refreshPracticeData();
-    }, 800); // Debounce to prevent rapid sequential calls on init
+    }, 1200); // Slightly longer delay to allow language to settle
     return () => clearTimeout(timer);
   }, [userName, age, language, refreshPracticeData]);
 

@@ -12,7 +12,7 @@ const iconMap: Record<string, string> = {
 };
 
 const PracticeRoomScreen: React.FC = () => {
-  const { language, practiceScenarios, dailyPracticeTip, userName } = useAppContext();
+  const { language, practiceScenarios, dailyPracticeTip, userName, t } = useAppContext();
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
   const [messages, setMessages] = useState<{role: 'ai' | 'user', text: string}[]>([]);
   const [userInput, setUserInput] = useState('');
@@ -30,8 +30,9 @@ const PracticeRoomScreen: React.FC = () => {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     
     const systemInstruction = `Roleplay: ${scenario.prompt}. User is ${userName}.
-    Act as the other person. Max 2 sentences. Relatable teen lang. 
-    Instant mode. Language: ${language === 'mk' ? 'Macedonian' : 'English'}.`;
+    Act as the other person in the situation. Keep it to max 2 short sentences. 
+    Use relatable teen language. Instant mode. 
+    Language: ${language === 'mk' ? 'Macedonian' : 'English'}.`;
 
     const chat = ai.chats.create({
         model: 'gemini-3-flash-preview',
@@ -44,7 +45,7 @@ const PracticeRoomScreen: React.FC = () => {
     
     setCurrentChat(chat);
     try {
-        const res = await chat.sendMessage({ message: `Hi, I am ${userName}. Start convo.` });
+        const res = await chat.sendMessage({ message: `Hi, I am ${userName}. Start the conversation naturally.` });
         setMessages([{ role: 'ai', text: res.text || '' }]);
     } catch (e) { 
         console.error(e); 
@@ -54,25 +55,34 @@ const PracticeRoomScreen: React.FC = () => {
 
   const handleSendMessage = async () => {
     if (!userInput.trim() || !currentChat || isLoading) return;
-    const text = userInput;
+    
+    const userText = userInput.trim();
     setUserInput('');
-    setMessages(prev => [...prev, { role: 'user', text }]);
+    
+    // Add user message to UI immediately
+    setMessages(prev => [...prev, { role: 'user', text: userText }]);
     setIsLoading(true);
+    
     try {
-      const res = await currentChat.sendMessage({ message: text });
-      setMessages(prev => [...prev, { role: 'ai', text: res.text || '' }]);
-    } catch (e) { console.error(e); } 
-    finally { setIsLoading(false); }
+      const res = await currentChat.sendMessage({ message: userText });
+      const aiResponse = res.text || '';
+      setMessages(prev => [...prev, { role: 'ai', text: aiResponse }]);
+    } catch (e) { 
+      console.error("Chat Error:", e);
+      setMessages(prev => [...prev, { role: 'ai', text: language === 'mk' ? "Не те разбрав баш најдобро, можеш ли да повториш?" : "I didn't quite catch that, could you say it again?" }]);
+    } finally { 
+      setIsLoading(false); 
+    }
   };
 
   return (
-    <ScreenWrapper title={language === 'mk' ? 'Вежбалница' : 'Practice Room'}>
+    <ScreenWrapper title={t('practice.title')}>
       <div className="h-full flex flex-col">
         {!currentChat ? (
           <div className="space-y-6 animate-fadeIn pb-8">
             <div className="bg-indigo-50 p-6 rounded-[2.5rem] relative overflow-hidden border-2 border-indigo-100 shadow-sm transition-all">
                 <div className="absolute -top-4 -right-4 w-20 h-20 bg-indigo-500/10 blur-2xl rounded-full"></div>
-                <p className="text-indigo-400 font-black uppercase text-[9px] tracking-[0.4em] mb-2">Amigo Insight</p>
+                <p className="text-indigo-400 font-black uppercase text-[9px] tracking-[0.4em] mb-2">{t('practice.insight_label')}</p>
                 <p className="text-indigo-900 font-bold text-sm leading-tight italic">
                     "{dailyPracticeTip || (language === 'mk' ? 'Твојата автентичност е твојата супермоќ.' : 'Your authenticity is your superpower.')}"
                 </p>
@@ -80,7 +90,7 @@ const PracticeRoomScreen: React.FC = () => {
 
             <div className="flex items-center justify-between px-2">
                 <h3 className="text-slate-400 font-black uppercase text-[10px] tracking-[0.3em]">
-                    {language === 'mk' ? 'ИЗБЕРИ СИТУАЦИЈА' : 'SELECT SITUATION'}
+                    {t('practice.select_situation')}
                 </h3>
             </div>
             
@@ -94,11 +104,8 @@ const PracticeRoomScreen: React.FC = () => {
                 >
                     <div className="flex items-center justify-between">
                         <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform shadow-inner">
-                            {getIcon(s.icon || s.category)}
+                            {getIcon(s.icon)}
                         </div>
-                        {s.category && (
-                            <span className="text-[8px] font-black uppercase tracking-tighter text-slate-300 bg-slate-50 px-2 py-1 rounded-full">{s.category}</span>
-                        )}
                     </div>
                     <div>
                         <p className="font-black text-slate-800 text-sm leading-tight mb-1">{s.title}</p>
@@ -112,7 +119,7 @@ const PracticeRoomScreen: React.FC = () => {
           <div className="flex flex-col h-[70vh]">
             <div className="flex items-center gap-3 mb-4 p-3 bg-indigo-50 rounded-2xl border border-indigo-100">
                 <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
-                <p className="text-[10px] font-black uppercase text-indigo-600 tracking-widest">Симулацијата е активна</p>
+                <p className="text-[10px] font-black uppercase text-indigo-600 tracking-widest">{t('practice.active_status')}</p>
             </div>
 
             <div className="flex-grow overflow-y-auto space-y-4 pb-4 px-1 scroll-smooth no-scrollbar">
@@ -133,7 +140,7 @@ const PracticeRoomScreen: React.FC = () => {
             <div className="mt-4 flex gap-2 bg-slate-100 p-2 rounded-[2.5rem] shadow-inner border border-slate-200">
               <input 
                 className="flex-grow p-4 bg-transparent outline-none font-bold text-slate-800 placeholder-slate-400" 
-                placeholder={language === 'mk' ? 'Кажи нешто...' : 'Say something...'} 
+                placeholder={t('practice.say_something')} 
                 value={userInput} 
                 onChange={e => setUserInput(e.target.value)}
                 onKeyPress={e => e.key === 'Enter' && handleSendMessage()}
@@ -147,7 +154,7 @@ const PracticeRoomScreen: React.FC = () => {
               </button>
             </div>
             <button onClick={() => {setCurrentChat(null); setMessages([]);}} className="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center py-2 underline decoration-dotted">
-                {language === 'mk' ? 'Заврши симулација' : 'End Simulation'}
+                {t('practice.end_sim')}
             </button>
           </div>
         )}
