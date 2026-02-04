@@ -5,8 +5,6 @@ import { useAppContext } from '../context/AppContext';
 import ScreenWrapper from '../components/ScreenWrapper';
 import { Screen } from '../types';
 
-declare const __API_KEY__: string;
-
 const SocialDecoderScreen: React.FC = () => {
   const { age, language, addCourageStars, ageGroup, userName, setCurrentScreen, showToast } = useAppContext();
   const [description, setDescription] = useState('');
@@ -37,14 +35,14 @@ const SocialDecoderScreen: React.FC = () => {
     if (!description.trim()) return;
     setIsLoading(true);
     setSafetyAlert(null);
-    const apiKey = typeof __API_KEY__ !== 'undefined' ? __API_KEY__ : "";
     
     const toneInstruction = isPro 
       ? "You are Amigo, a mature, minimalist, and respectful Social Sidekick for teens. Treat the user as a young adult. Avoid childish language." 
       : "You are Amigo, a playful, encouraging, and kind Social Sidekick for kids. Use simple words and lots of encouragement.";
 
     try {
-      const ai = new GoogleGenAI({ apiKey });
+      // Correct SDK initialization using process.env.API_KEY directly
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const prompt = `Persona: ${toneInstruction}
       User Name: ${userName}
       User Age: ${age}

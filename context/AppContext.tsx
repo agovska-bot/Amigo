@@ -9,9 +9,6 @@ interface AppContextType {
   setCurrentScreen: (screen: Screen) => void;
   userName: string | null;
   setUserName: (name: string) => void;
-  courageStars: number;
-  addCourageStars: (amount: number) => void;
-  addPoints: (category: string, amount: number) => void;
   toastMessage: string | null;
   showToast: (message: string) => void;
   birthDate: string | null; 
@@ -34,6 +31,9 @@ interface AppContextType {
   continueStory: (userSentence: string, aiSentence: string) => void;
   finishStory: (ending: string) => void;
   resetApp: () => void;
+  // Added missing properties to the context type definition
+  courageStars: number;
+  addCourageStars: (points: number) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -43,15 +43,13 @@ const translations: Record<string, any> = {
     onboarding: { welcome: "¡Hola!", intro: "I am Amigo.", name_prompt: "What is your name?", age_prompt: "How old are you?", start_button: "Launch Amigo" },
     home: { subtitle: "Turning Confusion into Understanding", decoder: "Decoder", practice: "Practice", chill: "Chill", missions: "Missions" },
     decoder: { prompt: "What happened?", analyze: "Analyze Signals", victory: "Social Victory", help_text: "Does this help clear the fog?" },
-    practice: { scenario_pick: "Pick a scenario:", finish: "Finish Practice", skill_up: "Social Skill Up!" },
-    points_summary: { points: "Courage Stars" }
+    practice: { scenario_pick: "Pick a scenario:", finish: "Finish Practice", skill_up: "Social Skill Up!" }
   },
   mk: {
     onboarding: { welcome: "¡Hola!", intro: "Јас сум Амиго.", name_prompt: "Како се викаш?", age_prompt: "Колку години имаш?", start_button: "Започни" },
     home: { subtitle: "Од збунетост до разбирање", decoder: "Декодер", practice: "Вежбалница", chill: "Опуштање", missions: "Мисии" },
     decoder: { prompt: "Што се случи?", analyze: "Анализирај Сигнали", victory: "Социјална Победа", help_text: "Дали ова ја исчисти маглата?" },
-    practice: { scenario_pick: "Избери сценарио:", finish: "Заврши вежба", skill_up: "Социјална вештина подобрена!" },
-    points_summary: { points: "Ѕвезди" }
+    practice: { scenario_pick: "Избери сценарио:", finish: "Заврши вежба", skill_up: "Социјална вештина подобрена!" }
   }
 };
 
@@ -59,7 +57,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [language, setLanguage] = useLocalStorage<Language | null>('language', null);
   const [userName, setUserName] = useLocalStorage<string | null>('userName', null);
   const [birthDate, setBirthDate] = useLocalStorage<string | null>('birthDate', null);
-  const [courageStars, setCourageStars] = useLocalStorage<number>('courageStars', 0);
   const [activeTasks, setActiveTasks] = useLocalStorage<ActiveTasks>('activeTasks', { move: null, kindness: null });
   const [moodHistory, setMoodHistory] = useLocalStorage<MoodEntry[]>('moodHistory', []);
   const [reflections, setReflections] = useLocalStorage<ReflectionEntry[]>('reflections', []);
@@ -68,6 +65,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [storyInProgress, setStoryInProgress] = useState<string[]>([]);
   const [currentScreen, setCurrentScreen] = useState<Screen>(Screen.Home);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  // Persistent state for points tracking
+  const [courageStars, setCourageStars] = useLocalStorage<number>('courageStars', 0);
 
   const age = useMemo(() => {
     if (!birthDate) return null;
@@ -84,14 +83,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   }, []);
-
-  const addCourageStars = useCallback((amount: number) => {
-    setCourageStars(p => p + amount);
-  }, [setCourageStars]);
-
-  const addPoints = useCallback((_category: string, amount: number) => {
-    addCourageStars(amount);
-  }, [addCourageStars]);
 
   const setActiveTask = (task: keyof ActiveTasks, value: string | null) => 
     setActiveTasks(prev => ({ ...prev, [task]: value }));
@@ -126,11 +117,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, [storyInProgress, setStories]);
 
   const resetApp = useCallback(() => {
-    // Nuclear reset: Clear storage and just reload the current page.
-    // This is safer than href = origin because it stays on the correct path.
     localStorage.clear();
     window.location.reload();
   }, []);
+
+  // Implementation of points addition callback
+  const addCourageStars = useCallback((points: number) => {
+    setCourageStars(prev => prev + points);
+  }, [setCourageStars]);
 
   const t = useCallback((key: string, fallback?: string) => {
     const lang = language || 'en';
@@ -148,7 +142,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     <AppContext.Provider value={{
       currentScreen, setCurrentScreen,
       userName, setUserName,
-      courageStars, addCourageStars, addPoints,
       toastMessage, showToast,
       birthDate, setBirthDate,
       age, ageGroup,
@@ -159,7 +152,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       reflections, addReflection,
       stories, storyInProgress, chatSession,
       startNewStory, continueStory, finishStory,
-      resetApp
+      resetApp,
+      courageStars,
+      addCourageStars
     }}>
       {children}
     </AppContext.Provider>

@@ -4,8 +4,6 @@ import { GoogleGenAI, Type, Chat } from "@google/genai";
 import { useAppContext } from '../context/AppContext';
 import ScreenWrapper from '../components/ScreenWrapper';
 
-declare const __API_KEY__: string;
-
 const PracticeRoomScreen: React.FC = () => {
   const { age, language, addCourageStars, userName, ageGroup, showToast } = useAppContext();
   const [scenarios, setScenarios] = useState<{title: string, prompt: string, icon: string}[]>([]);
@@ -39,9 +37,9 @@ const PracticeRoomScreen: React.FC = () => {
 
   const generateScenarios = async () => {
     setIsLoading(true);
-    const apiKey = typeof __API_KEY__ !== 'undefined' ? __API_KEY__ : "";
     try {
-        const ai = new GoogleGenAI({ apiKey });
+        // Correct SDK initialization using process.env.API_KEY directly
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const res = await ai.models.generateContent({
             model: 'gemini-3-flash-preview',
             contents: `Generate 2 unique social scenarios for ${userName} (${age}yo) to practice inclusion. 
@@ -66,14 +64,14 @@ const PracticeRoomScreen: React.FC = () => {
   const startPractice = async (scenario: {title: string, prompt: string}) => {
     setIsLoading(true);
     setSafetyAlert(null);
-    const apiKey = typeof __API_KEY__ !== 'undefined' ? __API_KEY__ : "";
     
     const persona = isPro 
       ? "You are Amigo, a mature, minimalist Social Sidekick for teens. Treat the user with respect." 
       : "You are Amigo, a playful and encouraging Social Sidekick for kids. Use simple words.";
 
     try {
-        const ai = new GoogleGenAI({ apiKey });
+        // Correct SDK initialization using process.env.API_KEY directly
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const chat = ai.chats.create({
             model: 'gemini-3-flash-preview',
             config: {

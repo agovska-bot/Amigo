@@ -16,7 +16,7 @@ const PuzzleButton: React.FC<{ title: string; icon: string; color: string; onCli
 );
 
 const HomeScreen: React.FC = () => {
-  const { setCurrentScreen, courageStars, language, ageGroup, resetApp } = useAppContext();
+  const { setCurrentScreen, language, ageGroup, resetApp } = useAppContext();
 
   const isPro = ageGroup === '12+';
 
@@ -27,8 +27,7 @@ const HomeScreen: React.FC = () => {
       practice: 'bg-orange-300',
       chill: 'bg-indigo-300',
       missions: 'bg-blue-300',
-      label: 'text-teal-600',
-      starBg: 'bg-white'
+      label: 'text-teal-600'
     },
     '12+': {
       bg: 'bg-slate-50',
@@ -36,8 +35,7 @@ const HomeScreen: React.FC = () => {
       practice: 'bg-zinc-600',
       chill: 'bg-slate-800',
       missions: 'bg-indigo-700',
-      label: 'text-slate-500',
-      starBg: 'bg-slate-100'
+      label: 'text-slate-500'
     }
   }[isPro ? '12+' : '10-12'];
 
@@ -93,13 +91,8 @@ const HomeScreen: React.FC = () => {
             />
         </div>
 
-        {/* Stats Section & Reset */}
+        {/* Reset & Credits Section */}
         <div className="mt-8 flex flex-col items-center gap-3 pb-4">
-            <div className={`${themes.starBg} px-5 py-2 rounded-full shadow-md border-2 border-white flex items-center gap-2`}>
-                <span className="text-lg">🌟</span>
-                <span className="text-md font-black text-slate-800">{courageStars}</span>
-            </div>
-
             <button 
                 onClick={resetApp}
                 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-red-500 transition-colors py-1 px-4 underline mt-4"

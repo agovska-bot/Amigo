@@ -6,8 +6,6 @@ import ScreenWrapper from '../components/ScreenWrapper';
 import { AgeGroup } from '../types';
 import { useTranslation } from '../hooks/useTranslation';
 
-declare const __API_KEY__: string;
-
 const GroundingExercise: React.FC<{ onFinish: () => void; isPro: boolean }> = ({ onFinish, isPro }) => {
     const steps = [
         "Focus: 5 things you can see right now.",
@@ -79,9 +77,9 @@ const CalmZoneScreen: React.FC = () => {
 
   const getNewTask = useCallback(async () => {
     setIsLoading(true);
-    const apiKey = typeof __API_KEY__ !== 'undefined' ? __API_KEY__ : "";
     try {
-        const ai = new GoogleGenAI({apiKey: apiKey});
+        // Correct SDK initialization using process.env.API_KEY directly
+        const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
         const prompt = `Short mental calming exercise for ${ageGroup} year old. Return in ${language === 'mk' ? 'Macedonian' : 'English'}. Max 1 sentence.`;
         const response = await ai.models.generateContent({
             model: 'gemini-flash-lite-latest',
