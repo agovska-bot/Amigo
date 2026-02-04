@@ -1,5 +1,4 @@
-
-const CACHE_NAME = 'amigo-v1';
+const CACHE_NAME = 'amigo-v2';
 
 // Install event: Simply skip waiting to activate immediately
 self.addEventListener('install', (event) => {
@@ -24,12 +23,10 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event: The core logic for PWA
 self.addEventListener('fetch', (event) => {
-  // Only handle GET requests
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
 
-  // Strategy 1: For HTML pages (Navigation) -> Network First, fall back to Cache
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
@@ -46,7 +43,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Strategy 2: For Static Assets (JS, CSS, Images, Fonts) -> Stale-While-Revalidate
   if (
     url.pathname.match(/\.(js|css|png|jpg|jpeg|svg|json|woff2)$/) ||
     url.hostname.includes('googleapis.com') ||
@@ -60,7 +56,7 @@ self.addEventListener('fetch', (event) => {
               cache.put(event.request, networkResponse.clone());
             }
             return networkResponse;
-          }).catch(err => console.log('Network fetch failed for asset, using cache only', err));
+          }).catch(err => console.log('Network fetch failed for asset', err));
 
           return cachedResponse || fetchPromise;
         });

@@ -1,124 +1,155 @@
 
-import React, { useState, useEffect } from 'react';
-import { GoogleGenAI, Type, Chat } from "@google/genai";
+import React, { useState } from 'react';
+import { GoogleGenAI, Chat } from "@google/genai";
 import { useAppContext } from '../context/AppContext';
 import ScreenWrapper from '../components/ScreenWrapper';
 
+const iconMap: Record<string, string> = {
+  'heart': '💖', 'broken_heart': '💔', 'school': '🏫', 'friend': '👫', 'friendship': '👫', 
+  'help': '🤝', 'helping': '🤝', 'smile': '😊', 'wave': '👋', 'ball': '⚽', 'phone': '📱', 
+  'game': '🎮', 'books': '📚', 'club': '🎭', 'party': '🎉', 'sad': '😢', 'happy': '😄', 
+  'confused': '🤔', 'team': '👥', 'chat': '💬', 'family': '🏠', 'conflict': '⚡', 'digital': '💻'
+};
+
 const PracticeRoomScreen: React.FC = () => {
-  const { age, language, userName, ageGroup, showToast } = useAppContext();
-  const [scenarios, setScenarios] = useState<{title: string, prompt: string, icon: string}[]>([]);
+  const { language, practiceScenarios, dailyPracticeTip, userName } = useAppContext();
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
   const [messages, setMessages] = useState<{role: 'ai' | 'user', text: string}[]>([]);
   const [userInput, setUserInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [safetyAlert, setSafetyAlert] = useState<string | null>(null);
-  const [turns, setTurns] = useState(0);
 
-  const isPro = ageGroup === '12+';
-
-  const themes = {
-    '10-12': {
-      card: 'border-orange-200 bg-white hover:bg-orange-50/30',
-      aiBubble: 'bg-orange-50 text-orange-900 border-orange-200',
-      userBubble: 'bg-slate-800 text-white',
-      accent: 'bg-orange-400'
-    },
-    '12+': {
-      card: 'border-slate-300 bg-white hover:bg-slate-50',
-      aiBubble: 'bg-slate-100 text-slate-800 border-slate-200',
-      userBubble: 'bg-slate-700 text-white',
-      accent: 'bg-slate-900'
-    }
-  }[isPro ? '12+' : '10-12'];
-
-  useEffect(() => {
-    generateScenarios();
-  }, []);
-
-  const generateScenarios = async () => {
-    setIsLoading(true);
-    try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-        const res = await ai.models.generateContent({
-            model: 'gemini-3-flash-preview',
-            contents: `Generate 2 social scenarios for ${userName} (${age}yo) to practice social inclusion. Language: ${language === 'mk' ? 'Macedonian' : 'English'}.`,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: Type.ARRAY,
-                    items: {
-                        type: Type.OBJECT,
-                        properties: { title: { type: Type.STRING }, prompt: { type: Type.STRING }, icon: { type: Type.STRING } },
-                        required: ["title", "prompt", "icon"]
-                    }
-                }
-            }
-        });
-        setScenarios(JSON.parse(res.text || '[]').slice(0, 2));
-    } catch (e) { console.error(e); } finally { setIsLoading(false); }
+  const getIcon = (icon: string) => {
+    if (!icon) return '🌟';
+    const clean = icon.toLowerCase().trim();
+    if (/\p{Emoji}/u.test(icon) && icon.length <= 4) return icon;
+    return iconMap[clean] || '🌟';
   };
 
   const startPractice = async (scenario: {title: string, prompt: string}) => {
     setIsLoading(true);
-    setSafetyAlert(null);
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    
+    const systemInstruction = `You are a person in this scenario: "${scenario.prompt}".
+    The user is ${userName} (aged 10-16). 
+    
+    SIMULATION RULES:
+    1. Act authentically as the other person (peer, teacher, or relative).
+    2. Vocabulary: Natural and relatable for a teen. No baby talk, no corporate jargon.
+    3. Be direct: Max 1-2 sentences.
+    4. Help ${userName} practice a social skill (asking, explaining, or listening).
+    
+    Language: ${language === 'mk' ? 'Macedonian' : 'English'}. Respond in the user's language.`;
+
     const chat = ai.chats.create({
         model: 'gemini-3-flash-preview',
         config: {
-            systemInstruction: `You are Amigo, a ${isPro ? 'mature' : 'playful'} Social Sidekick. Roleplay as the person in: "${scenario.prompt}".`,
+            systemInstruction,
+            thinkingConfig: { thinkingBudget: 0 }
         }
     });
+    
     setCurrentChat(chat);
     try {
-        const res = await chat.sendMessage({ message: "Start simulation: First line." });
+        const res = await chat.sendMessage({ message: `Hey, it's ${userName}.` });
         setMessages([{ role: 'ai', text: res.text || '' }]);
-    } catch (e) { console.error(e); } finally { setIsLoading(false); }
+    } catch (e) { 
+        console.error(e); 
+        setMessages([{ role: 'ai', text: language === 'mk' ? `Еј ${userName}, што правиш?` : `Hey ${userName}, what's up?` }]);
+    } finally { setIsLoading(false); }
   };
 
-  const sendMessage = async () => {
-    if (!userInput.trim() || !currentChat) return;
-    setIsLoading(true);
+  const handleSendMessage = async () => {
+    if (!userInput.trim() || !currentChat || isLoading) return;
     const text = userInput;
     setUserInput('');
     setMessages(prev => [...prev, { role: 'user', text }]);
+    setIsLoading(true);
     try {
-        const res = await currentChat.sendMessage({ message: text });
-        const aiResponse = res.text || '';
-        setMessages(prev => [...prev, { role: 'ai', text: aiResponse }]);
-        setTurns(prev => prev + 1);
-    } catch (e) { console.error(e); } finally { setIsLoading(false); }
+      const res = await currentChat.sendMessage({ message: text });
+      setMessages(prev => [...prev, { role: 'ai', text: res.text || '' }]);
+    } catch (e) { console.error(e); } 
+    finally { setIsLoading(false); }
   };
 
   return (
     <ScreenWrapper title={language === 'mk' ? 'Вежбалница' : 'Practice Room'}>
-      <div className="h-full">
+      <div className="h-full flex flex-col">
         {!currentChat ? (
-          <div className="space-y-4">
-            {scenarios.map((s, i) => (
-              <button key={i} onClick={() => startPractice(s)} className={`w-full p-6 rounded-3xl text-left border-l-8 shadow-sm border ${themes.card}`}>
-                <div className="flex items-center gap-3">
-                    <span className="text-3xl">{s.icon}</span>
-                    <p className="font-black text-slate-800">{s.title}</p>
-                </div>
-              </button>
-            ))}
+          <div className="space-y-6 animate-fadeIn pb-8">
+            <div className="bg-indigo-50 p-6 rounded-[2.5rem] relative overflow-hidden border-2 border-indigo-100 shadow-sm transition-all">
+                <div className="absolute -top-4 -right-4 w-20 h-20 bg-indigo-500/10 blur-2xl rounded-full"></div>
+                <p className="text-indigo-400 font-black uppercase text-[9px] tracking-[0.4em] mb-2">Amigo Insight</p>
+                <p className="text-indigo-900 font-bold text-sm leading-tight italic">
+                    "{dailyPracticeTip || (language === 'mk' ? 'Твојата автентичност е твојата супермоќ.' : 'Your authenticity is your superpower.')}"
+                </p>
+            </div>
+
+            <div className="flex items-center justify-between px-2">
+                <h3 className="text-slate-400 font-black uppercase text-[10px] tracking-[0.3em]">
+                    {language === 'mk' ? 'ИЗБЕРИ СИТУАЦИЈА' : 'SELECT SITUATION'}
+                </h3>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {practiceScenarios.map((s, i) => (
+                <button 
+                    key={i} 
+                    onClick={() => startPractice(s)} 
+                    className="w-full p-5 rounded-[2rem] text-left border-2 bg-white hover:border-teal-400 hover:shadow-lg transition-all group flex flex-col gap-3 border-slate-100 shadow-sm active:scale-95 animate-slideUp"
+                    style={{ animationDelay: `${i * 80}ms` }}
+                >
+                    <div className="flex items-center justify-between">
+                        <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform shadow-inner">
+                            {getIcon(s.icon || s.category)}
+                        </div>
+                        {s.category && (
+                            <span className="text-[8px] font-black uppercase tracking-tighter text-slate-300 bg-slate-50 px-2 py-1 rounded-full">{s.category}</span>
+                        )}
+                    </div>
+                    <div>
+                        <p className="font-black text-slate-800 text-sm leading-tight mb-1">{s.title}</p>
+                        <p className="text-[9px] text-slate-400 font-bold line-clamp-1 opacity-80">{s.prompt}</p>
+                    </div>
+                </button>
+                ))}
+            </div>
           </div>
         ) : (
-          <div className="flex flex-col h-[65vh]">
-            <div className="flex-grow overflow-y-auto space-y-4 pb-4">
+          <div className="flex flex-col h-[75vh]">
+            <div className="flex items-center gap-3 mb-4 p-3 bg-indigo-50 rounded-2xl border border-indigo-100">
+                <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
+                <p className="text-[10px] font-black uppercase text-indigo-600 tracking-widest">Симулацијата е активна</p>
+            </div>
+
+            <div className="flex-grow overflow-y-auto space-y-4 pb-4 px-1 scroll-smooth no-scrollbar">
                 {messages.map((m, i) => (
-                    <div key={i} className={`flex ${m.role === 'ai' ? 'justify-start' : 'justify-end'}`}>
-                        <div className={`max-w-[85%] p-4 rounded-2xl font-bold ${m.role === 'ai' ? `border ${themes.aiBubble}` : themes.userBubble}`}>
+                    <div key={i} className={`flex ${m.role === 'ai' ? 'justify-start' : 'justify-end'} animate-slideUp`}>
+                        <div className={`max-w-[85%] p-4 rounded-2xl font-bold text-[15px] shadow-sm ${m.role === 'ai' ? 'bg-white text-slate-800 border border-slate-100 rounded-bl-none' : 'bg-slate-900 text-white rounded-br-none'}`}>
                             {m.text}
                         </div>
                     </div>
                 ))}
             </div>
-            <div className="mt-4 flex gap-2 bg-slate-50 p-2 rounded-3xl">
-              <input className="flex-grow p-4 bg-transparent outline-none font-bold" placeholder="..." value={userInput} onChange={e => setUserInput(e.target.value)} />
-              <button onClick={sendMessage} className={`${themes.accent} text-white w-12 h-12 rounded-full`}>➔</button>
+
+            <div className="mt-4 flex gap-2 bg-slate-100 p-2 rounded-[2.5rem] shadow-inner border border-slate-200">
+              <input 
+                className="flex-grow p-4 bg-transparent outline-none font-bold text-slate-800 placeholder-slate-400" 
+                placeholder={language === 'mk' ? 'Кажи нешто...' : 'Say something...'} 
+                value={userInput} 
+                onChange={e => setUserInput(e.target.value)}
+                onKeyPress={e => e.key === 'Enter' && handleSendMessage()}
+              />
+              <button 
+                onClick={handleSendMessage}
+                disabled={isLoading}
+                className="bg-indigo-600 text-white w-12 h-12 rounded-full flex items-center justify-center font-black text-xl active:scale-90 disabled:opacity-50"
+              >
+                {isLoading ? '...' : '➔'}
+              </button>
             </div>
-            <button onClick={() => setCurrentChat(null)} className="mt-4 text-xs font-bold text-slate-400 uppercase tracking-widest">{language === 'mk' ? 'Заврши' : 'Finish'}</button>
+            <button onClick={() => {setCurrentChat(null); setMessages([]);}} className="mt-6 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center py-2 underline decoration-dotted">
+                {language === 'mk' ? 'Заврши симулација' : 'End Simulation'}
+            </button>
           </div>
         )}
       </div>

@@ -2,7 +2,27 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Language } from '../types';
-import AmigoMascot from '../components/AmigoMascot';
+
+const MariachiLogo: React.FC<{ size?: string }> = ({ size = "w-56 h-56" }) => (
+    <div className={`relative flex flex-col items-center justify-center ${size} group animate-float`}>
+        <div className="absolute inset-0 bg-teal-400/10 rounded-full blur-3xl"></div>
+        
+        {/* Sombrero Hat (SVG) */}
+        <div className="relative z-20 -mb-8 transform scale-125">
+            <svg width="140" height="70" viewBox="0 0 140 70" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-lg">
+                <path d="M10 55 C10 45 30 35 70 35 C110 35 130 45 130 55 L130 65 C130 68 110 70 70 70 C30 70 10 68 10 65 Z" fill="#FACC15" stroke="#854D0E" strokeWidth="2"/>
+                <path d="M45 40 C45 10 95 10 95 40" fill="#FACC15" stroke="#854D0E" strokeWidth="2"/>
+                <path d="M48 38 C55 28 85 28 92 38" fill="none" stroke="#DC2626" strokeWidth="3" strokeLinecap="round"/>
+            </svg>
+        </div>
+        
+        {/* Friendly Emoticon Face */}
+        <span className="text-8xl relative z-10 filter drop-shadow-xl select-none">😊</span>
+        
+        <div className="absolute top-2 right-2 animate-bounce delay-150 text-2xl">🎸</div>
+        <div className="absolute bottom-6 left-2 animate-bounce text-2xl">🎺</div>
+    </div>
+);
 
 const WelcomeScreen: React.FC = () => {
   const { setLanguage, setUserName, setBirthDate, language: currentLang } = useAppContext();
@@ -60,8 +80,8 @@ const WelcomeScreen: React.FC = () => {
             {isMk ? 'Твојот пријател за разбирање' : 'Your Partner for Understanding'}
         </div>
 
-        <div className="mb-8">
-            <AmigoMascot size={260} />
+        <div className="mb-8 relative group">
+            <MariachiLogo />
         </div>
         
         <div className="w-full text-center space-y-8">
@@ -132,9 +152,14 @@ const WelcomeScreen: React.FC = () => {
       </div>
 
       <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+        }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        .animate-float { animation: float 4s ease-in-out infinite; }
         .animate-fadeIn { animation: fadeIn 1s ease-out forwards; }
         .animate-slideUp { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .animate-shake { animation: shake 0.2s ease-in-out 2; }

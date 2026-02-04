@@ -3,9 +3,9 @@
   "short_name": "Amigo",
   "name": "Amigo | Social Translator",
   "description": "Turning Social Confusion into Understanding.",
-  "id": "/",
-  "start_url": "/",
-  "scope": "/",
+  "id": "amigo-social-translator",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "theme_color": "#14b8a6",
@@ -13,9 +13,9 @@
   "categories": ["education", "social"],
   "icons": [
     {
-      "src": "/logo.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "./logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]

@@ -36,25 +36,23 @@ const MoveScreen: React.FC = () => {
       setIsLoading(true);
       
       const persona = isPro 
-        ? "You are Amigo, a mature and minimalist Social Sidekick for teens." 
-        : "You are Amigo, a playful and encouraging Social Sidekick for kids.";
+        ? "You are Amigo, a mature Social Sidekick." 
+        : "You are Amigo, a playful Social Sidekick.";
 
       try {
-        // Correct SDK initialization using process.env.API_KEY directly
         const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const prompt = `${persona}
         User: ${userName} (${age}yo).
-        Task: Generate ONE unique, safe, and positive social mission for the user to do RIGHT NOW.
-        Rules:
-        - Language: Detect user language (${language}). If Macedonian, respond in MACEDONIAN CYRILLIC.
-        - Tone: ${isPro ? "Mature, respectful, minimalist" : "Simple, playful, high encouragement"}.
-        - Format: Max 1 short sentence. No quotes.`;
+        ONE safe social mission for the user RIGHT NOW.
+        CRITICAL: Max 1 short sentence. Instant.
+        Language: ${language === 'mk' ? 'Macedonian' : 'English'}.`;
         
         const response = await ai.models.generateContent({
           model: 'gemini-3-flash-preview',
           contents: prompt,
           config: { 
               temperature: 1.0,
+              // INSTANT RESPONSE
               thinkingConfig: { thinkingBudget: 0 }
           }
         });

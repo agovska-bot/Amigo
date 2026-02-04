@@ -1,7 +1,5 @@
 {
   "name": "Amigo",
   "description": "Amigo is an advanced AI 'Social Translator' designed to help children and teenagers navigate social complexities and build confidence by turning confusing social signals into clear, logical strategies.",
-  "requestFramePermissions": [
-    "microphone"
-  ]
+  "requestFramePermissions": []
 }

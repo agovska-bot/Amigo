@@ -1,77 +1,85 @@
 
 import React from 'react';
 
-const AmigoMascot: React.FC<{ size?: number; className?: string }> = ({ size = 200, className = "" }) => {
+interface AmigoMascotProps {
+  size?: number;
+  className?: string;
+}
+
+const AmigoMascot: React.FC<AmigoMascotProps> = ({ size = 200, className = "" }) => {
   return (
-    <div className={`relative flex items-center justify-center ${className}`} style={{ width: size, height: size }}>
-      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-[0_15px_30px_rgba(0,0,0,0.15)]">
-        <defs>
-          {/* Face 3D Gradient */}
-          <radialGradient id="faceGradient" cx="45%" cy="35%" r="55%" fx="45%" fy="35%">
-            <stop offset="0%" stopColor="#FFE082" />
-            <stop offset="50%" stopColor="#FFC107" />
-            <stop offset="100%" stopColor="#FF8F00" />
-          </radialGradient>
-          
-          {/* Sombrero Shine */}
-          <linearGradient id="hatShine" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#424242" />
-            <stop offset="100%" stopColor="#121212" />
-          </linearGradient>
-        </defs>
-
-        {/* Aura / Glow */}
-        <circle cx="100" cy="110" r="85" fill="#F0F9FF" opacity="0.4" />
+    <div 
+      className={`relative flex items-center justify-center overflow-visible ${className}`} 
+      style={{ width: size, height: size }}
+    >
+      <div className="w-full h-full animate-float select-none relative">
+        {/* Outer Glow Ring */}
+        <div className="absolute inset-0 bg-teal-400/20 rounded-full blur-3xl animate-pulse"></div>
         
-        {/* Main Head Body */}
-        <circle cx="100" cy="115" r="55" fill="url(#faceGradient)" />
-        
-        {/* Rosy Cheeks */}
-        <circle cx="68" cy="125" r="12" fill="#FF8A80" opacity="0.4" filter="blur(6px)" />
-        <circle cx="132" cy="125" r="12" fill="#FF8A80" opacity="0.4" filter="blur(6px)" />
+        <svg 
+          viewBox="0 0 200 200" 
+          fill="none" 
+          xmlns="http://www.w3.org/2000/svg" 
+          className="w-full h-full drop-shadow-[0_10px_30px_rgba(20,184,166,0.4)]"
+        >
+          <defs>
+            <linearGradient id="prismGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#0F172A" />
+              <stop offset="100%" stopColor="#1E293B" />
+            </linearGradient>
+            <linearGradient id="lensGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#2DD4BF" />
+              <stop offset="100%" stopColor="#0D9488" />
+            </linearGradient>
+          </defs>
 
-        {/* Eyes - Joyful */}
-        <g>
-          <circle cx="82" cy="108" r="7" fill="#3E2723" />
-          <circle cx="80" cy="106" r="2.5" fill="white" />
+          {/* Main Body - Geometric Prism */}
+          <path 
+            d="M100 30 L160 70 L160 130 L100 170 L40 130 L40 70 Z" 
+            fill="url(#prismGradient)" 
+            stroke="#2DD4BF" 
+            strokeWidth="3"
+            strokeLinejoin="round"
+          />
           
-          <circle cx="118" cy="108" r="7" fill="#3E2723" />
-          <circle cx="116" cy="106" r="2.5" fill="white" />
-        </g>
+          {/* Inner Core Glass Effect */}
+          <path 
+            d="M100 50 L140 75 L140 125 L100 150 L60 125 L60 75 Z" 
+            fill="rgba(45, 212, 191, 0.1)" 
+            stroke="rgba(255, 255, 255, 0.2)" 
+            strokeWidth="1"
+          />
 
-        {/* Brows - Friendly */}
-        <path d="M72,98 Q82,92 92,98" fill="none" stroke="#3E2723" strokeWidth="3" strokeLinecap="round" />
-        <path d="M108,98 Q118,92 128,98" fill="none" stroke="#3E2723" strokeWidth="3" strokeLinecap="round" />
+          {/* Digital Eyes / Vizor */}
+          <rect x="75" y="85" width="50" height="15" rx="7.5" fill="#0F172A" stroke="#2DD4BF" strokeWidth="1" />
+          <g className="animate-scan">
+             <rect x="80" y="90" width="10" height="5" rx="2.5" fill="#2DD4BF" />
+             <rect x="110" y="90" width="10" height="5" rx="2.5" fill="#2DD4BF" />
+          </g>
 
-        {/* Hearty Wide Smile */}
-        <path d="M78,135 Q100,155 122,135" fill="none" stroke="#3E2723" strokeWidth="5" strokeLinecap="round" />
+          {/* Translation Beam (Bottom) */}
+          <path 
+            d="M80 170 L100 190 L120 170" 
+            stroke="#2DD4BF" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            opacity="0.6"
+          />
+        </svg>
+      </div>
 
-        {/* SOMBRERO - Wide and Decorative */}
-        <g transform="translate(0, 15)">
-            {/* Crown */}
-            <path d="M75,60 Q100,10 125,60" fill="url(#hatShine)" stroke="black" strokeWidth="1" />
-            {/* Wide Brim */}
-            <path d="M10,75 Q100,50 190,75 Q100,105 10,75 Z" fill="#212121" stroke="black" strokeWidth="1.5" />
-            {/* Decorative Ornaments */}
-            <g fill="white" opacity="0.9">
-                <circle cx="30" cy="74" r="2.5" />
-                <circle cx="50" cy="72" r="2.5" />
-                <circle cx="70" cy="71" r="2.5" />
-                <circle cx="90" cy="71" r="2.5" />
-                <circle cx="110" cy="71" r="2.5" />
-                <circle cx="130" cy="71" r="2.5" />
-                <circle cx="150" cy="72" r="2.5" />
-                <circle cx="170" cy="74" r="2.5" />
-            </g>
-        </g>
-
-        {/* BOWTIE - Centered below the smile */}
-        <g transform="translate(100, 160) scale(0.8)">
-            <path d="M-22,-10 L0,0 L-22,10 Z" fill="#D32F2F" />
-            <path d="M22,-10 L0,0 L22,10 Z" fill="#D32F2F" />
-            <circle cx="0" cy="0" r="6" fill="#B71C1C" />
-        </g>
-      </svg>
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-12px) rotate(2deg); }
+        }
+        @keyframes scan {
+          0%, 100% { opacity: 1; transform: scaleX(1); }
+          50% { opacity: 0.5; transform: scaleX(0.8); }
+        }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-scan { animation: scan 2s ease-in-out infinite; transform-origin: center; }
+      `}</style>
     </div>
   );
 };
