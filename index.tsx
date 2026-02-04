@@ -1,3 +1,4 @@
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -17,15 +18,15 @@ root.render(
   </React.StrictMode>
 );
 
-// Register the service worker for PWA functionality
+// Register the service worker from the public folder
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js')
       .then(registration => {
-        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        console.log('Amigo ServiceWorker active');
       })
       .catch(error => {
-        console.log('ServiceWorker registration failed: ', error);
+        console.error('ServiceWorker failed', error);
       });
   });
 }

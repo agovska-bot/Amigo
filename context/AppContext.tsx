@@ -1,8 +1,7 @@
 
 import React, { createContext, useContext, useState, ReactNode, useCallback, useMemo } from 'react';
 import useLocalStorage from '../hooks/useLocalStorage';
-import { Screen, AgeGroup, Language, ActiveTasks, MoodEntry, ReflectionEntry, StoryEntry } from '../types';
-import { Chat } from '@google/genai';
+import { Screen, AgeGroup, Language, ActiveTasks } from '../types';
 
 interface AppContextType {
   currentScreen: Screen;
@@ -20,36 +19,27 @@ interface AppContextType {
   activeTasks: ActiveTasks;
   setActiveTask: (task: keyof ActiveTasks, value: string | null) => void;
   t: (key: string, fallback?: string) => any;
-  moodHistory: MoodEntry[];
-  addMood: (entry: MoodEntry) => void;
-  reflections: ReflectionEntry[];
-  addReflection: (entry: ReflectionEntry) => void;
-  stories: StoryEntry[];
-  storyInProgress: string[];
-  chatSession: Chat | null;
-  startNewStory: (chat: Chat, firstSentence: string) => void;
-  continueStory: (userSentence: string, aiSentence: string) => void;
-  finishStory: (ending: string) => void;
   resetApp: () => void;
-  // Added missing properties to the context type definition
-  courageStars: number;
-  addCourageStars: (points: number) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const translations: Record<string, any> = {
   en: {
-    onboarding: { welcome: "¡Hola!", intro: "I am Amigo.", name_prompt: "What is your name?", age_prompt: "How old are you?", start_button: "Launch Amigo" },
-    home: { subtitle: "Turning Confusion into Understanding", decoder: "Decoder", practice: "Practice", chill: "Chill", missions: "Missions" },
-    decoder: { prompt: "What happened?", analyze: "Analyze Signals", victory: "Social Victory", help_text: "Does this help clear the fog?" },
-    practice: { scenario_pick: "Pick a scenario:", finish: "Finish Practice", skill_up: "Social Skill Up!" }
+    onboarding: { welcome: "¡Hola!", intro: "I am Amigo.", name_prompt: "What is your name?", age_prompt: "How old are you?", start_button: "Launch Amigo", continue: "CONTINUE", start: "START", error_name: "Please, tell me your name", error_age: "Enter your age", nice_to_meet: "Nice to meet you" },
+    home: { subtitle: "Turning Confusion into Understanding", decoder: "Decoder", practice: "Practice", chill: "Chill", missions: "Missions", delete_profile: "Delete Profile", by: "by Damjan Agovski & Daijan Selmani" },
+    decoder: { title: "Social Decoder", prompt: "What is on your mind?", placeholder: "Describe what happened...", analyze: "Analyze Signals", analyzing: "Analyzing...", back: "Back", retry: "Please try again in a moment." },
+    practice: { title: "Practice Room", finish: "Finish", ai_thinking: "Amigo is thinking..." },
+    chill: { title: "Chill Zone", breathing: "Deep Breathing", grounding: "5-4-3-2-1 Grounding", new_thought: "New Calm Thought" },
+    missions: { title: "Hero Missions", accept: "I ACCEPT! 🛡️", thinking: "Amigo is thinking...", reward: "Confidence is your true reward" }
   },
   mk: {
-    onboarding: { welcome: "¡Hola!", intro: "Јас сум Амиго.", name_prompt: "Како се викаш?", age_prompt: "Колку години имаш?", start_button: "Започни" },
-    home: { subtitle: "Од збунетост до разбирање", decoder: "Декодер", practice: "Вежбалница", chill: "Опуштање", missions: "Мисии" },
-    decoder: { prompt: "Што се случи?", analyze: "Анализирај Сигнали", victory: "Социјална Победа", help_text: "Дали ова ја исчисти маглата?" },
-    practice: { scenario_pick: "Избери сценарио:", finish: "Заврши вежба", skill_up: "Социјална вештина подобрена!" }
+    onboarding: { welcome: "¡Hola!", intro: "Јас сум Амиго.", name_prompt: "Како се викаш?", age_prompt: "Колку години имаш?", start_button: "Започни", continue: "ПРОДОЛЖИ", start: "ЗАПОЧНИ", error_name: "Те молам, напиши го твоето име", error_age: "Внеси ги твоите години", nice_to_meet: "Мило ми е" },
+    home: { subtitle: "Од збунетост до разбирање", decoder: "Декодер", practice: "Вежбалница", chill: "Опуштање", missions: "Мисии", delete_profile: "Избриши профил", by: "од Дамјан Аговски и Даијан Селмани" },
+    decoder: { title: "Социјален Декодер", prompt: "Што те замисли?", placeholder: "Опиши ја ситуацијата...", analyze: "Анализирај Сигнали", analyzing: "Анализирам...", back: "Назад", retry: "Пробај пак за момент." },
+    practice: { title: "Вежбалница", finish: "Заврши", ai_thinking: "Амиго размислува..." },
+    chill: { title: "Опуштање", breathing: "Длабоко дишење", grounding: "5-4-3-2-1 Вежба", new_thought: "Нова мисла" },
+    missions: { title: "Херојски Мисии", accept: "ПРИФАЌАМ! 🛡️", thinking: "Амиго смислува мисија...", reward: "Самодовербата е твојата вистинска награда" }
   }
 };
 
@@ -57,16 +47,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [language, setLanguage] = useLocalStorage<Language | null>('language', null);
   const [userName, setUserName] = useLocalStorage<string | null>('userName', null);
   const [birthDate, setBirthDate] = useLocalStorage<string | null>('birthDate', null);
-  const [activeTasks, setActiveTasks] = useLocalStorage<ActiveTasks>('activeTasks', { move: null, kindness: null });
-  const [moodHistory, setMoodHistory] = useLocalStorage<MoodEntry[]>('moodHistory', []);
-  const [reflections, setReflections] = useLocalStorage<ReflectionEntry[]>('reflections', []);
-  const [stories, setStories] = useLocalStorage<StoryEntry[]>('stories', []);
-  const [chatSession, setChatSession] = useState<Chat | null>(null);
-  const [storyInProgress, setStoryInProgress] = useState<string[]>([]);
+  const [activeTasks, setActiveTasks] = useLocalStorage<ActiveTasks>('activeTasks', { move: null });
   const [currentScreen, setCurrentScreen] = useState<Screen>(Screen.Home);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  // Persistent state for points tracking
-  const [courageStars, setCourageStars] = useLocalStorage<number>('courageStars', 0);
 
   const age = useMemo(() => {
     if (!birthDate) return null;
@@ -87,44 +70,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const setActiveTask = (task: keyof ActiveTasks, value: string | null) => 
     setActiveTasks(prev => ({ ...prev, [task]: value }));
 
-  const addMood = useCallback((entry: MoodEntry) => {
-    setMoodHistory(prev => [entry, ...prev]);
-  }, [setMoodHistory]);
-
-  const addReflection = useCallback((entry: ReflectionEntry) => {
-    setReflections(prev => [entry, ...prev]);
-  }, [setReflections]);
-
-  const startNewStory = useCallback((chat: Chat, firstSentence: string) => {
-    setChatSession(chat);
-    setStoryInProgress([firstSentence]);
-  }, []);
-
-  const continueStory = useCallback((userSentence: string, aiSentence: string) => {
-    setStoryInProgress(prev => [...prev, userSentence, aiSentence]);
-  }, []);
-
-  const finishStory = useCallback((ending: string) => {
-    const fullStory = [...storyInProgress, ending];
-    const newStory: StoryEntry = {
-        title: `Adventure on ${new Date().toLocaleDateString()}`,
-        content: fullStory,
-        date: new Date().toISOString()
-    };
-    setStories(prev => [newStory, ...prev]);
-    setStoryInProgress([]);
-    setChatSession(null);
-  }, [storyInProgress, setStories]);
-
   const resetApp = useCallback(() => {
     localStorage.clear();
     window.location.reload();
   }, []);
-
-  // Implementation of points addition callback
-  const addCourageStars = useCallback((points: number) => {
-    setCourageStars(prev => prev + points);
-  }, [setCourageStars]);
 
   const t = useCallback((key: string, fallback?: string) => {
     const lang = language || 'en';
@@ -148,13 +97,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       language, setLanguage,
       activeTasks, setActiveTask,
       t,
-      moodHistory, addMood,
-      reflections, addReflection,
-      stories, storyInProgress, chatSession,
-      startNewStory, continueStory, finishStory,
-      resetApp,
-      courageStars,
-      addCourageStars
+      resetApp
     }}>
       {children}
     </AppContext.Provider>

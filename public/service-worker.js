@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'moody-buddy-plus-v10';
+const CACHE_NAME = 'amigo-v1';
 
 // Install event: Simply skip waiting to activate immediately
 self.addEventListener('install', (event) => {

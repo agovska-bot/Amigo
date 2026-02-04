@@ -16,7 +16,7 @@ const PuzzleButton: React.FC<{ title: string; icon: string; color: string; onCli
 );
 
 const HomeScreen: React.FC = () => {
-  const { setCurrentScreen, language, ageGroup, resetApp } = useAppContext();
+  const { setCurrentScreen, t, ageGroup, resetApp } = useAppContext();
 
   const isPro = ageGroup === '12+';
 
@@ -54,7 +54,7 @@ const HomeScreen: React.FC = () => {
                     Amigo
                 </h1>
                 <p className={`text-[9px] font-black uppercase tracking-[0.4em] mt-2 ${themes.label}`}>
-                    {language === 'mk' ? 'Од збунетост до разбирање' : 'Turning Confusion into Understanding'}
+                    {t('home.subtitle')}
                 </p>
             </div>
         </div>
@@ -62,28 +62,28 @@ const HomeScreen: React.FC = () => {
         {/* Activity Grid */}
         <div className="grid grid-cols-2 gap-3 w-full max-w-[280px] mx-auto p-3 bg-white/40 rounded-[2.5rem] backdrop-blur-sm border border-white/60">
             <PuzzleButton 
-                title={language === 'mk' ? "Декодер" : "Decoder"}
+                title={t('home.decoder')}
                 icon="🔍"
                 color={themes.decoder}
                 rounded="rounded-tl-[3rem] rounded-br-[1.5rem]"
                 onClick={() => setCurrentScreen(Screen.SocialDecoder)}
             />
             <PuzzleButton 
-                title={language === 'mk' ? "Вежбалница" : "Practice"}
+                title={t('home.practice')}
                 icon="⚔️"
                 color={themes.practice}
                 rounded="rounded-tr-[3rem] rounded-bl-[1.5rem]"
                 onClick={() => setCurrentScreen(Screen.PracticeRoom)}
             />
             <PuzzleButton 
-                title={language === 'mk' ? "Опуштање" : "Chill"}
+                title={t('home.chill')}
                 icon="🌬️"
                 color={themes.chill}
                 rounded="rounded-bl-[3rem] rounded-tr-[1.5rem]"
                 onClick={() => setCurrentScreen(Screen.CalmZone)}
             />
             <PuzzleButton 
-                title={language === 'mk' ? "Мисии" : "Missions"}
+                title={t('home.missions')}
                 icon="🛡️"
                 color={themes.missions}
                 rounded="rounded-br-[3rem] rounded-tl-[1.5rem]"
@@ -97,12 +97,12 @@ const HomeScreen: React.FC = () => {
                 onClick={resetApp}
                 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-red-500 transition-colors py-1 px-4 underline mt-4"
             >
-                {language === 'mk' ? 'Избриши профил' : 'Delete Profile'}
+                {t('home.delete_profile')}
             </button>
 
             <div className="text-center mt-6">
                 <p className={`text-[10px] font-black ${themes.label}`}>
-                  by Damjan Agovski & Daijan Selmani
+                  {t('home.by')}
                 </p>
                 <p className="text-[11px] font-black text-slate-400 mt-0.5">
                   ASEF 2026

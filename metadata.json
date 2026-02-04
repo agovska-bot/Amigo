@@ -1,6 +1,6 @@
 {
   "name": "Amigo",
-  "description": "Amigo is an advanced AI \"Social Translator\" designed to help children and teenagers (ages 10-16) navigate social complexities and build confidence. Unlike standard chatbots, Amigo specializes in Social Inclusion by turning confusing social signals into clear, logical strategies.",
+  "description": "Amigo is an advanced AI 'Social Translator' designed to help children and teenagers navigate social complexities and build confidence by turning confusing social signals into clear, logical strategies.",
   "requestFramePermissions": [
     "microphone"
   ]
