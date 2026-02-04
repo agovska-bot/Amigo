@@ -8,7 +8,7 @@ import AmigoMascot from '../components/AmigoMascot';
 const PuzzleButton: React.FC<{ title: string; icon: string; color: string; onClick: () => void; rounded: string }> = ({ title, icon, color, onClick, rounded }) => (
     <button 
         onClick={onClick}
-        className={`aspect-square w-full p-2 flex flex-col items-center justify-center gap-1 transition-all hover:brightness-110 active:scale-90 shadow-lg ${color} ${rounded} border-4 border-white/20`}
+        className={`aspect-square w-full p-2 flex flex-col items-center justify-center gap-1 transition-all hover:brightness-105 active:scale-90 shadow-lg ${color} ${rounded} border-4 border-white/20`}
     >
         <span className="text-3xl filter drop-shadow-md">{icon}</span>
         <span className="text-[10px] font-black uppercase tracking-tight text-white text-center leading-none">{title}</span>
@@ -16,15 +16,33 @@ const PuzzleButton: React.FC<{ title: string; icon: string; color: string; onCli
 );
 
 const HomeScreen: React.FC = () => {
-  const { setCurrentScreen, courageStars, resetApp, language } = useAppContext();
+  const { setCurrentScreen, courageStars, language, ageGroup, resetApp } = useAppContext();
 
-  const handleReset = () => {
-    const msg = language === 'mk' ? "Дали сте сигурни дека сакате да го ресетирате профилот?" : "Are you sure you want to reset your profile?";
-    if (window.confirm(msg)) resetApp();
-  };
+  const isPro = ageGroup === '12+';
+
+  const themes = {
+    '10-12': {
+      bg: 'bg-teal-50/20',
+      decoder: 'bg-teal-300',
+      practice: 'bg-orange-300',
+      chill: 'bg-indigo-300',
+      missions: 'bg-blue-300',
+      label: 'text-teal-600',
+      starBg: 'bg-white'
+    },
+    '12+': {
+      bg: 'bg-slate-50',
+      decoder: 'bg-slate-600',
+      practice: 'bg-zinc-600',
+      chill: 'bg-slate-800',
+      missions: 'bg-indigo-700',
+      label: 'text-slate-500',
+      starBg: 'bg-slate-100'
+    }
+  }[isPro ? '12+' : '10-12'];
 
   return (
-    <div className="min-h-screen w-full bg-slate-50 transition-colors duration-1000">
+    <div className={`min-h-screen w-full transition-colors duration-1000 ${themes.bg}`}>
       <ScreenWrapper title="" showBackButton={false}>
         
         {/* Brand Section */}
@@ -37,63 +55,63 @@ const HomeScreen: React.FC = () => {
                 <h1 className="text-5xl font-black tracking-tighter text-slate-900">
                     Amigo
                 </h1>
-                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-teal-600">
+                <p className={`text-[9px] font-black uppercase tracking-[0.4em] ${themes.label}`}>
                     {language === 'mk' ? 'Од збунетост до разбирање' : 'Turning Confusion into Understanding'}
                 </p>
             </div>
         </div>
 
         {/* Activity Grid */}
-        <div className="grid grid-cols-2 gap-2 w-full max-w-[260px] mx-auto p-2 bg-white/50 rounded-[2.5rem] backdrop-blur-sm border border-white">
+        <div className="grid grid-cols-2 gap-3 w-full max-w-[280px] mx-auto p-3 bg-white/40 rounded-[2.5rem] backdrop-blur-sm border border-white/60">
             <PuzzleButton 
                 title={language === 'mk' ? "Декодер" : "Decoder"}
                 icon="🔍"
-                color="bg-teal-500"
-                rounded="rounded-tl-[3rem] rounded-br-[1rem]"
+                color={themes.decoder}
+                rounded="rounded-tl-[3rem] rounded-br-[1.5rem]"
                 onClick={() => setCurrentScreen(Screen.SocialDecoder)}
             />
             <PuzzleButton 
                 title={language === 'mk' ? "Вежбалница" : "Practice"}
                 icon="⚔️"
-                color="bg-orange-500"
-                rounded="rounded-tr-[3rem] rounded-bl-[1rem]"
+                color={themes.practice}
+                rounded="rounded-tr-[3rem] rounded-bl-[1.5rem]"
                 onClick={() => setCurrentScreen(Screen.PracticeRoom)}
             />
             <PuzzleButton 
                 title={language === 'mk' ? "Опуштање" : "Chill"}
                 icon="🌬️"
-                color="bg-indigo-500"
-                rounded="rounded-bl-[3rem] rounded-tr-[1rem]"
+                color={themes.chill}
+                rounded="rounded-bl-[3rem] rounded-tr-[1.5rem]"
                 onClick={() => setCurrentScreen(Screen.CalmZone)}
             />
             <PuzzleButton 
                 title={language === 'mk' ? "Мисии" : "Missions"}
                 icon="🛡️"
-                color="bg-blue-600"
-                rounded="rounded-br-[3rem] rounded-tl-[1rem]"
+                color={themes.missions}
+                rounded="rounded-br-[3rem] rounded-tl-[1.5rem]"
                 onClick={() => setCurrentScreen(Screen.Move)}
             />
         </div>
 
-        {/* Stats Section & Credits */}
-        <div className="mt-6 flex flex-col items-center gap-3 pb-4">
-            <div className="bg-white/90 px-5 py-2 rounded-full shadow-md border-2 border-white flex items-center gap-2">
+        {/* Stats Section & Reset */}
+        <div className="mt-8 flex flex-col items-center gap-3 pb-4">
+            <div className={`${themes.starBg} px-5 py-2 rounded-full shadow-md border-2 border-white flex items-center gap-2`}>
                 <span className="text-lg">🌟</span>
                 <span className="text-md font-black text-slate-800">{courageStars}</span>
             </div>
 
             <button 
-                onClick={handleReset}
-                className="text-[8px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-red-500 transition-colors py-1 px-4 underline"
+                onClick={resetApp}
+                className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-red-500 transition-colors py-1 px-4 underline mt-4"
             >
-                {language === 'mk' ? 'Избриши профил' : 'Reset Profile'}
+                {language === 'mk' ? 'Избриши профил' : 'Delete Profile'}
             </button>
 
-            <div className="text-center mt-4">
-                <p className="text-[10px] font-bold text-slate-400">
+            <div className="text-center mt-6">
+                <p className="text-[10px] font-bold text-slate-300">
                   by Damjan Agovski & Daijan Selmani
                 </p>
-                <p className="text-[11px] font-black text-teal-600">
+                <p className={`text-[11px] font-black opacity-30 ${themes.label}`}>
                   ASEF 2026
                 </p>
             </div>

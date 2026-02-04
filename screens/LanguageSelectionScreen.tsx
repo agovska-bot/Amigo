@@ -14,7 +14,9 @@ const WelcomeScreen: React.FC = () => {
 
   const detectLanguage = (input: string): Language => {
     const cyrillicPattern = /[\u0400-\u04FF]/;
-    if (cyrillicPattern.test(input)) return 'mk';
+    // Simple Latin Macedonian heuristics
+    const mkLatinPattern = /(zdravo|kako si|sto pravis|fala|blagodaram|dobro)/i;
+    if (cyrillicPattern.test(input) || mkLatinPattern.test(input)) return 'mk';
     return 'en';
   };
 
@@ -43,6 +45,8 @@ const WelcomeScreen: React.FC = () => {
     setBirthDate(ageInput);
   };
 
+  const isMk = currentLang === 'mk';
+
   return (
     <div className="relative min-h-screen w-full bg-white flex flex-col items-center justify-center p-6 overflow-hidden">
       <div className="fixed top-[-10%] left-[-20%] w-[50rem] h-[50rem] bg-teal-500/10 rounded-full filter blur-[120px] pointer-events-none"></div>
@@ -68,26 +72,30 @@ const WelcomeScreen: React.FC = () => {
                     />
                     {error && <p className="text-red-500 font-bold">{error}</p>}
                     <button onClick={handleNameConfirm} className="bg-slate-900 text-white font-black px-12 py-5 rounded-[2rem] text-xl shadow-xl hover:scale-105 active:scale-95 transition-all">
-                        {currentLang === 'mk' ? 'Следно' : 'Next'}
+                        {isMk ? 'Следно' : 'Next'}
                     </button>
                 </div>
             ) : (
                 <div className="space-y-6">
                     <div className="space-y-2">
-                        <h2 className="text-4xl font-black text-slate-900 leading-tight">Nice to meet you!</h2>
-                        <p className="text-xl font-bold text-slate-500">How old are you?</p>
+                        <h2 className="text-4xl font-black text-slate-900 leading-tight">
+                            {isMk ? 'Мило ми е што те запознав!' : 'Nice to meet you!'}
+                        </h2>
+                        <p className="text-xl font-bold text-slate-500">
+                            {isMk ? 'Колку години имаш?' : 'How old are you?'}
+                        </p>
                     </div>
                     <input
                         type="text"
                         inputMode="numeric"
-                        placeholder="Age"
+                        placeholder={isMk ? 'Години' : 'Age'}
                         value={ageInput}
                         onChange={(e) => setAgeInput(e.target.value.replace(/\D/g, ''))}
                         className="w-full bg-slate-50 border-b-4 border-slate-200 p-5 text-5xl font-black text-slate-900 focus:outline-none focus:border-orange-500 transition-all text-center rounded-2xl shadow-inner"
                     />
                     {error && <p className="text-red-500 font-bold">{error}</p>}
                     <button onClick={handleFinish} className="bg-orange-500 text-white font-black px-12 py-5 rounded-[2rem] text-xl shadow-xl hover:scale-105 active:scale-95 transition-all">
-                        {currentLang === 'mk' ? 'Започни' : 'Launch Amigo'}
+                        {isMk ? 'Започни' : 'Launch Amigo'}
                     </button>
                 </div>
             )}
