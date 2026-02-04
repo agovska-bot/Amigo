@@ -6,13 +6,13 @@ import { Language } from '../types';
 const WelcomeScreen: React.FC = () => {
   const { setLanguage, setUserName, setBirthDate, language: currentLang } = useAppContext();
   
-  // Чуваме на кој чекор сме (име или години)
+  // step ни кажува дали го прашуваме името или годините
   const [step, setStep] = useState<'name' | 'age'>('name');
   const [nameInput, setNameInput] = useState('');
   const [ageInput, setAgeInput] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  // Оваа функција препознава дали пишуваш на македонски или англиски
+  // Оваа функција сама открива дали корисникот пишува на македонски
   const detectLanguage = (input: string): Language => {
     const cyrillicPattern = /[\u0400-\u04FF]/;
     if (cyrillicPattern.test(input)) return 'mk';
@@ -21,7 +21,7 @@ const WelcomeScreen: React.FC = () => {
 
   const isMk = useMemo(() => detectLanguage(nameInput) === 'mk' || currentLang === 'mk', [nameInput, currentLang]);
 
-  // Се активира кога ќе го напишеш името
+  // Се извршува кога ќе го напишеш името и ќе продолжиш
   const handleNameConfirm = () => {
     if (nameInput.trim().length >= 2) {
       setUserName(nameInput.trim());
@@ -33,7 +33,7 @@ const WelcomeScreen: React.FC = () => {
     }
   };
 
-  // Се активира кога ќе ги внесеш годините
+  // Се извршува кога ќе ги внесеш годините за да почнат мисиите
   const handleFinish = () => {
     const ageNum = parseInt(ageInput, 10);
     if (isNaN(ageNum) || ageNum < 3 || ageNum > 100) {
@@ -47,7 +47,7 @@ const WelcomeScreen: React.FC = () => {
     <div className="min-h-screen w-full bg-slate-50 flex flex-col items-center justify-center p-6 font-sans">
       <div className="w-full max-w-sm flex flex-col items-center animate-fadeIn">
         
-        {/* Ознака на најгорниот дел */}
+        {/* Горниот слоган на апликацијата */}
         <div className="mb-10 bg-teal-50 text-teal-700 px-6 py-2 rounded-full border border-teal-100 shadow-sm text-center">
             <span className="text-[10px] font-black uppercase tracking-[0.2em] leading-relaxed block">
                 {isMk ? 'Од збунетост до разбирање' : 'Turning Confusion into Understanding'}

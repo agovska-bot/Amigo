@@ -4,7 +4,7 @@ import useLocalStorage from '../hooks/useLocalStorage';
 import { Screen, AgeGroup, Language, ActiveTasks } from '../types';
 import { GoogleGenAI, Type } from "@google/genai";
 
-// Ова го дефинира изгледот на сценаријата за вежбање
+// Ова го дефинира изгледот на сценаријата за вежбање во Вежбалницата
 interface PracticeScenario {
   title: string;
   prompt: string;
@@ -37,7 +37,7 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-// Основни задачи ако вештачката интелигенција не работи во моментот
+// Основни сценарија ако интернетот е бавен
 const defaultScenarios: Record<Language, PracticeScenario[]> = {
   mk: [
     { title: "Нов пријател", prompt: "Запознај се со некој нов во училиште.", icon: "👫" },
@@ -51,17 +51,17 @@ const defaultScenarios: Record<Language, PracticeScenario[]> = {
   ]
 };
 
-// Преводи за апликацијата
+// Преводи за сите копчиња и пораки во апликацијата
 const translations: Record<string, any> = {
   en: {
-    home: { tagline: "Your Partner for Understanding", decoder: "Decoder", practice: "Practice", chill: "Chill", missions: "Missions", delete_profile: "Delete Profile" },
+    home: { tagline: "Turning Confusion into Understanding", decoder: "Decoder", practice: "Practice", chill: "Chill", missions: "Missions", delete_profile: "Delete Profile" },
     decoder: { title: "Social Decoder", placeholder: "What happened?", analyze: "Analyze", analyzing: "Thinking...", back: "Back", retry: "Try again." },
     practice: { title: "Practice Room", ai_thinking: "Amigo is thinking..." },
     chill: { title: "Chill Zone" },
     missions: { title: "Hero Missions", accept: "I ACCEPT!" }
   },
   mk: {
-    home: { tagline: "Твој партнер за разбирање", decoder: "Декодер", practice: "Вежбалница", chill: "Опуштање", missions: "Мисии", delete_profile: "Избриши профил" },
+    home: { tagline: "Од збунетост до разбирање", decoder: "Декодер", practice: "Вежбалница", chill: "Опуштање", missions: "Мисии", delete_profile: "Избриши профил" },
     decoder: { title: "Социјален Декодер", placeholder: "Што се случи?", analyze: "Анализирај", analyzing: "Размислувам...", back: "Назад", retry: "Пробај пак." },
     practice: { title: "Вежбалница", ai_thinking: "Амиго размислува..." },
     chill: { title: "Опуштање" },
@@ -81,7 +81,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [dailyPracticeTip, setDailyPracticeTip] = useState<string>('');
   const [isPracticeSyncing, setIsPracticeSyncing] = useState(false);
 
-  // Пресметување на години
+  // Овде пресметуваме колку години има корисникот
   const age = useMemo(() => {
     if (!birthDate) return null;
     const ageNum = parseInt(birthDate, 10);
@@ -93,12 +93,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return age < 13 ? '10-12' : '12+';
   }, [age]);
 
+  // Покажува мала порака на дното на екранот
   const showToast = useCallback((msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   }, []);
 
-  // Оваа функција ги зема сценаријата од вештачката интелигенција
+  // Оваа функција ги бара најновите вежби од Амиго (AI)
   const refreshPracticeData = useCallback(async () => {
     if (!userName || !age) return;
     setIsPracticeSyncing(true);
@@ -148,13 +149,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const setActiveTask = (task: keyof ActiveTasks, value: string | null) => 
     setActiveTasks(prev => ({ ...prev, [task]: value }));
 
-  // Целосно ресетирање на апликацијата
+  // Го брише профилот и ја враќа апликацијата на почеток
   const resetApp = useCallback(() => {
     localStorage.clear();
     window.location.reload();
   }, []);
 
-  // Функција за превод
+  // Функција која ни кажува како се вели нешто на македонски или англиски
   const t = useCallback((key: string, fallback?: string) => {
     const dict = translations[language || 'en'] || translations.en;
     const keys = key.split('.');

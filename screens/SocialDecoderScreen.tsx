@@ -4,7 +4,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { useAppContext } from '../context/AppContext';
 import ScreenWrapper from '../components/ScreenWrapper';
 
-// Делови од одговорот на Амиго
+// Ова ни кажува што ќе ни одговори Амиго
 interface Insight {
   label: string;
   text: string;
@@ -17,7 +17,7 @@ const SocialDecoderScreen: React.FC = () => {
   const [result, setResult] = useState<{insights: Insight[], victory: string} | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Функција која ја анализира ситуацијата
+  // Оваа функција ја анализира ситуацијата што те збунила
   const decodeSocial = async () => {
     if (!description.trim()) return;
     setIsLoading(true);
@@ -60,6 +60,7 @@ const SocialDecoderScreen: React.FC = () => {
       <div className="space-y-6">
         {!result ? (
           <div className="space-y-6 animate-fadeIn">
+            {/* Овде го пишуваш текстот за тоа што се случило */}
             <textarea
                 className="w-full bg-slate-50 border-2 border-slate-100 p-6 text-xl font-bold outline-none focus:border-teal-400 rounded-3xl h-44 resize-none"
                 placeholder={t('decoder.placeholder')}
@@ -76,6 +77,7 @@ const SocialDecoderScreen: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-4 animate-fadeIn">
+            {/* Амиго ни ги покажува неговите совети */}
             {result.insights.map((item, i) => (
                 <div key={i} className="p-5 bg-white rounded-3xl border border-slate-100 shadow-sm">
                     <div className="flex items-center gap-3 mb-2">

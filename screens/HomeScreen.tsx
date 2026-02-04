@@ -4,7 +4,7 @@ import { useAppContext } from '../context/AppContext';
 import { Screen } from '../types';
 import ScreenWrapper from '../components/ScreenWrapper';
 
-// Копче за избор на активност
+// Ова е копчето за секоја од четирите главни опции
 const MenuButton: React.FC<{ title: string; icon: string; color: string; onClick: () => void; rounded: string }> = ({ title, icon, color, onClick, rounded }) => (
     <button 
         onClick={onClick}
@@ -19,7 +19,7 @@ const HomeScreen: React.FC = () => {
   const { setCurrentScreen, t, ageGroup, resetApp, language } = useAppContext();
   const isPro = ageGroup === '12+';
 
-  // Боите на менито
+  // Боите на менито се менуваат ако корисникот е постар
   const themes = {
     '10-12': {
       bg: 'bg-slate-50',
@@ -43,7 +43,7 @@ const HomeScreen: React.FC = () => {
     <div className={`min-h-screen w-full ${isPro ? 'bg-slate-900' : 'bg-slate-50'}`}>
       <ScreenWrapper title="" showBackButton={false}>
         
-        {/* Наслов на апликацијата */}
+        {/* Главниот наслов на апликацијата */}
         <div className="flex flex-col items-center justify-center pt-10 mb-10">
             <h1 className={`text-6xl font-black tracking-tighter ${isPro ? 'text-white' : 'text-slate-900'}`}>
                 Amigo
@@ -53,7 +53,7 @@ const HomeScreen: React.FC = () => {
             </p>
         </div>
 
-        {/* Четирите главни коцки */}
+        {/* Четирите главни коцки за избор */}
         <div className="grid grid-cols-2 gap-4 w-full max-w-[320px] mx-auto p-4 bg-white/50 rounded-[2.5rem] shadow-xl border border-white">
             <MenuButton 
                 title={t('home.decoder')}
@@ -85,15 +85,16 @@ const HomeScreen: React.FC = () => {
             />
         </div>
 
-        {/* Информации на дното */}
-        <div className="mt-auto flex flex-col items-center gap-4 py-8">
+        {/* Дното на екранот со авторите и годината */}
+        <div className="mt-auto flex flex-col items-center gap-2 py-8">
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">by Damjan Agovski & Daijan Selmani</p>
+            <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">ASEF 2026.</p>
             <button 
                 onClick={resetApp}
-                className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-red-500 underline"
+                className="mt-4 text-[9px] font-bold uppercase tracking-widest text-slate-300 hover:text-red-400 underline"
             >
                 {t('home.delete_profile')}
             </button>
-            <p className="text-[9px] font-bold text-slate-300 uppercase tracking-[0.2em]">ASEF 2026</p>
         </div>
 
       </ScreenWrapper>
