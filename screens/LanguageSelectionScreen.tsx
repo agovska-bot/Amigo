@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Language } from '../types';
 import AmigoMascot from '../components/AmigoMascot';
@@ -20,6 +20,10 @@ const WelcomeScreen: React.FC = () => {
     return 'en';
   };
 
+  // Immediate detection for UI reactivity
+  const detectedLang = useMemo(() => detectLanguage(nameInput), [nameInput]);
+  const isMk = detectedLang === 'mk' || currentLang === 'mk';
+
   useEffect(() => {
     if (nameInput.trim().length > 0) {
       setLanguage(detectLanguage(nameInput));
@@ -32,20 +36,18 @@ const WelcomeScreen: React.FC = () => {
       setError(null);
       setStep('age');
     } else {
-      setError(currentLang === 'mk' ? 'Те молам внеси го името' : 'Please enter your name');
+      setError(isMk ? 'Те молам внеси го името' : 'Please enter your name');
     }
   };
 
   const handleFinish = () => {
     const ageNum = parseInt(ageInput, 10);
     if (isNaN(ageNum) || ageNum < 3 || ageNum > 100) {
-      setError(currentLang === 'mk' ? 'Внеси валидни години' : 'Enter a valid age');
+      setError(isMk ? 'Внеси валидни години' : 'Enter a valid age');
       return;
     }
     setBirthDate(ageInput);
   };
-
-  const isMk = currentLang === 'mk';
 
   return (
     <div className="relative min-h-screen w-full bg-white flex flex-col items-center justify-center p-6 overflow-hidden">

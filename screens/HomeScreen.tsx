@@ -55,7 +55,7 @@ const HomeScreen: React.FC = () => {
                 <h1 className="text-5xl font-black tracking-tighter text-slate-900">
                     Amigo
                 </h1>
-                <p className={`text-[9px] font-black uppercase tracking-[0.4em] ${themes.label}`}>
+                <p className={`text-[9px] font-black uppercase tracking-[0.4em] mt-2 ${themes.label}`}>
                     {language === 'mk' ? 'Од збунетост до разбирање' : 'Turning Confusion into Understanding'}
                 </p>
             </div>
@@ -108,10 +108,10 @@ const HomeScreen: React.FC = () => {
             </button>
 
             <div className="text-center mt-6">
-                <p className="text-[10px] font-bold text-slate-300">
+                <p className={`text-[10px] font-black ${themes.label}`}>
                   by Damjan Agovski & Daijan Selmani
                 </p>
-                <p className={`text-[11px] font-black opacity-30 ${themes.label}`}>
+                <p className="text-[11px] font-black text-slate-400 mt-0.5">
                   ASEF 2026
                 </p>
             </div>

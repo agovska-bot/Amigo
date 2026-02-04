@@ -126,14 +126,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, [storyInProgress, setStories]);
 
   const resetApp = useCallback(() => {
-    setUserName(null as any);
-    setBirthDate(null as any);
-    setLanguage(null as any);
-    setCourageStars(0);
-    setCurrentScreen(Screen.Home);
+    // Nuclear reset: Clear storage and just reload the current page.
+    // This is safer than href = origin because it stays on the correct path.
     localStorage.clear();
     window.location.reload();
-  }, [setUserName, setBirthDate, setLanguage, setCourageStars]);
+  }, []);
 
   const t = useCallback((key: string, fallback?: string) => {
     const lang = language || 'en';
