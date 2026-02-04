@@ -7,9 +7,11 @@ import ScreenWrapper from '../components/ScreenWrapper';
 const MenuButton: React.FC<{ title: string; color: string; onClick: () => void; rounded: string }> = ({ title, color, onClick, rounded }) => (
     <button 
         onClick={onClick}
-        className={`aspect-square w-full p-4 flex flex-col items-center justify-center transition-all active:scale-95 shadow-lg shadow-black/5 ${color} ${rounded} border-4 border-white/40 group`}
+        className={`aspect-square w-full p-2 sm:p-4 flex flex-col items-center justify-center transition-all active:scale-95 shadow-lg shadow-black/5 ${color} ${rounded} border-4 border-white/40 group overflow-hidden`}
     >
-        <span className="text-xl sm:text-2xl font-black uppercase tracking-widest text-white text-center leading-tight group-hover:scale-105 transition-transform">{title}</span>
+        <span className="text-[14px] xs:text-lg sm:text-2xl font-black uppercase tracking-widest text-white text-center leading-tight group-hover:scale-105 transition-transform break-words px-1">
+            {title}
+        </span>
     </button>
 );
 
@@ -17,7 +19,6 @@ const HomeScreen: React.FC = () => {
   const { setCurrentScreen, t, ageGroup, resetApp, language } = useAppContext();
   const isPro = ageGroup === '12+';
 
-  // Subtler, pastel-based themes for the 10-12 group
   const themes = {
     '10-12': {
       bg: 'bg-[#F8FAFC]',
@@ -25,7 +26,6 @@ const HomeScreen: React.FC = () => {
       practice: 'bg-[#9F7AEA]', // Soft Lavender
       chill: 'bg-[#F6AD55]', // Soft Orange/Peach
       missions: 'bg-[#63B3ED]', // Sky Blue
-      text: 'text-slate-800'
     },
     '12+': {
       bg: 'bg-slate-900',
@@ -33,7 +33,6 @@ const HomeScreen: React.FC = () => {
       practice: 'bg-teal-600',
       chill: 'bg-emerald-700',
       missions: 'bg-indigo-900',
-      text: 'text-white'
     }
   }[isPro ? '12+' : '10-12'];
 
@@ -56,7 +55,7 @@ const HomeScreen: React.FC = () => {
             </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 w-full max-w-[340px] mx-auto p-4 bg-white rounded-[3rem] shadow-2xl shadow-slate-200 border border-slate-50 animate-slideUp">
+        <div className="grid grid-cols-2 gap-3 sm:gap-6 w-full max-w-[340px] sm:max-w-[480px] mx-auto p-4 sm:p-8 bg-white rounded-[3rem] shadow-2xl shadow-slate-200 border border-slate-50 animate-slideUp">
             <MenuButton 
                 title={t('home.decoder')}
                 color={themes.decoder}
