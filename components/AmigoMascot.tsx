@@ -4,77 +4,112 @@ import React from 'react';
 const AmigoMascot: React.FC<{ size?: number; className?: string }> = ({ size = 200, className = "" }) => {
   return (
     <div className={`relative flex items-center justify-center ${className}`} style={{ width: size, height: size }}>
-      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-        {/* Background Light Blue Circle */}
-        <circle cx="100" cy="100" r="75" fill="none" stroke="#BFDBFE" strokeWidth="2" opacity="0.8" />
-        
-        {/* Arms/Hands */}
-        {/* Waving Hand (Right) */}
-        <path d="M140,105 Q155,95 165,100 Q175,105 160,115" fill="#FFD700" stroke="#EAB308" strokeWidth="1" />
-        
-        {/* Guitar Hand (Left) */}
-        <path d="M60,110 Q45,120 55,135" fill="#FFD700" stroke="#EAB308" strokeWidth="1" />
-
-        {/* Yellow Face with Gradient */}
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-[0_15px_30px_rgba(0,0,0,0.15)]">
         <defs>
-          <radialGradient id="faceGradient" cx="50%" cy="40%" r="50%" fx="50%" fy="30%">
-            <stop offset="0%" stopColor="#FFEA00" />
-            <stop offset="100%" stopColor="#FFB700" />
+          {/* Face 3D Gradient */}
+          <radialGradient id="faceGradient" cx="45%" cy="35%" r="55%" fx="45%" fy="35%">
+            <stop offset="0%" stopColor="#FFE082" />
+            <stop offset="50%" stopColor="#FFC107" />
+            <stop offset="100%" stopColor="#FF8F00" />
           </radialGradient>
+          
+          {/* Guitar Wood Gradient */}
+          <linearGradient id="guitarBody" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#A1887F" />
+            <stop offset="100%" stopColor="#5D4037" />
+          </linearGradient>
+
+          {/* Sombrero Shine */}
+          <linearGradient id="hatShine" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#424242" />
+            <stop offset="100%" stopColor="#121212" />
+          </linearGradient>
         </defs>
-        <circle cx="100" cy="110" r="48" fill="url(#faceGradient)" stroke="#EAB308" strokeWidth="1" />
+
+        {/* Aura / Glow */}
+        <circle cx="100" cy="110" r="85" fill="#F0F9FF" opacity="0.4" />
+        
+        {/* Arm - Right (Waving) */}
+        <path d="M145,110 Q165,100 170,115 Q175,135 155,145" fill="#FFC107" stroke="#FF8F00" strokeWidth="2" />
+
+        {/* Arm - Left (Holding Guitar) */}
+        <path d="M55,115 Q35,130 45,155" fill="#FFC107" stroke="#FF8F00" strokeWidth="2" />
+
+        {/* Main Head */}
+        <circle cx="100" cy="115" r="55" fill="url(#faceGradient)" />
         
         {/* Rosy Cheeks */}
-        <circle cx="72" cy="115" r="10" fill="#FF4D4D" opacity="0.4" filter="blur(2px)" />
-        <circle cx="128" cy="115" r="10" fill="#FF4D4D" opacity="0.4" filter="blur(2px)" />
+        <circle cx="68" cy="125" r="12" fill="#FF8A80" opacity="0.4" filter="blur(6px)" />
+        <circle cx="132" cy="125" r="12" fill="#FF8A80" opacity="0.4" filter="blur(6px)" />
 
-        {/* Eyes & Brows */}
-        <circle cx="82" cy="102" r="5" fill="#5D2E0C" />
-        <circle cx="118" cy="102" r="5" fill="#5D2E0C" />
-        <path d="M72,92 Q82,88 92,92" fill="none" stroke="#5D2E0C" strokeWidth="2.5" strokeLinecap="round" />
-        <path d="M108,92 Q118,88 128,92" fill="none" stroke="#5D2E0C" strokeWidth="2.5" strokeLinecap="round" />
-
-        {/* Smile */}
-        <path d="M82,125 Q100,138 118,125" fill="none" stroke="#5D2E0C" strokeWidth="3" strokeLinecap="round" />
-
-        {/* SOMBRERO */}
-        {/* Crown */}
-        <path d="M75,75 Q100,20 125,75" fill="#1A1A1A" stroke="black" strokeWidth="1" />
-        {/* Brim */}
-        <ellipse cx="100" cy="85" rx="90" ry="32" fill="#1A1A1A" stroke="black" strokeWidth="1" />
-        {/* White Pattern on Brim */}
-        <g stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" opacity="0.9">
-          <path d="M30,85 Q35,75 40,85" />
-          <path d="M45,88 Q50,78 55,88" />
-          <path d="M60,91 Q65,81 70,91" />
-          <path d="M75,93 Q80,83 85,93" />
-          <path d="M90,94 Q95,84 100,94" />
-          <path d="M105,94 Q110,84 115,94" />
-          <path d="M120,93 Q125,83 130,93" />
-          <path d="M135,91 Q140,81 145,91" />
-          <path d="M150,88 Q155,78 160,88" />
-          <path d="M165,85 Q170,75 175,85" />
+        {/* Eyes - Joyful */}
+        <g>
+          <circle cx="82" cy="108" r="7" fill="#3E2723" />
+          <circle cx="80" cy="106" r="2.5" fill="white" />
+          
+          <circle cx="118" cy="108" r="7" fill="#3E2723" />
+          <circle cx="116" cy="106" r="2.5" fill="white" />
         </g>
 
-        {/* BOWTIE with Polka Dots */}
-        <g transform="translate(100, 148)">
-          <path d="M-22,-10 L-22,10 L0,0 Z" fill="#D32F2F" />
-          <path d="M22,-10 L22,10 L0,0 Z" fill="#D32F2F" />
-          <circle cx="0" cy="0" r="6" fill="#D32F2F" />
-          {/* Polka Dots */}
-          <circle cx="-12" cy="-4" r="2" fill="white" />
-          <circle cx="-16" cy="3" r="2" fill="white" />
-          <circle cx="12" cy="4" r="2" fill="white" />
-          <circle cx="16" cy="-3" r="2" fill="white" />
-          <circle cx="0" cy="0" r="1.5" fill="white" />
-        </g>
+        {/* Brows - Friendly */}
+        <path d="M72,98 Q82,92 92,98" fill="none" stroke="#3E2723" strokeWidth="3" strokeLinecap="round" />
+        <path d="M108,98 Q118,92 128,98" fill="none" stroke="#3E2723" strokeWidth="3" strokeLinecap="round" />
+
+        {/* Hearty Wide Smile */}
+        <path d="M78,135 Q100,155 122,135" fill="none" stroke="#3E2723" strokeWidth="5" strokeLinecap="round" />
 
         {/* GUITAR */}
-        <g transform="translate(45, 125) rotate(-25)">
-          <path d="M0,0 Q-10,10 -5,25 Q0,40 15,40 Q30,40 35,25 Q40,10 30,0 Z" fill="#A0522D" stroke="#5D2E0C" strokeWidth="1" />
-          <rect x="13" y="-25" width="4" height="30" fill="#5D2E0C" />
-          <rect x="11" y="-28" width="8" height="6" rx="1" fill="#A0522D" />
-          <circle cx="15" cy="15" r="6" fill="#5D2E0C" opacity="0.6" />
+        <g transform="translate(35, 125) rotate(-15)">
+            {/* Guitar Body */}
+            <path d="M15,10 Q25,0 35,10 Q45,20 40,35 Q30,45 20,45 Q5,40 10,25 Q12,15 15,10" fill="url(#guitarBody)" stroke="#3E2723" strokeWidth="1" />
+            {/* Sound Hole */}
+            <circle cx="27" cy="25" r="4" fill="#3E2723" />
+            {/* Neck */}
+            <rect x="24" y="-5" width="6" height="15" fill="#8D6E63" stroke="#3E2723" strokeWidth="0.5" />
+            {/* Headstock */}
+            <rect x="22" y="-12" width="10" height="8" rx="2" fill="#5D4037" stroke="#3E2723" strokeWidth="0.5" />
+            {/* Strings */}
+            <g stroke="#D7CCC8" strokeWidth="0.3" opacity="0.6">
+                <line x1="25.5" y1="-5" x2="25.5" y2="40" />
+                <line x1="27" y1="-5" x2="27" y2="40" />
+                <line x1="28.5" y1="-5" x2="28.5" y2="40" />
+            </g>
+        </g>
+
+        {/* SOMBRERO - Wide and Decorative */}
+        <g transform="translate(0, 15)">
+            {/* Crown */}
+            <path d="M75,60 Q100,10 125,60" fill="url(#hatShine)" stroke="black" strokeWidth="1" />
+            {/* Wide Brim */}
+            <path d="M10,75 Q100,50 190,75 Q100,105 10,75 Z" fill="#212121" stroke="black" strokeWidth="1.5" />
+            {/* Decorative Ornaments (White Dots/Patterns) */}
+            <g fill="white" opacity="0.9">
+                <circle cx="30" cy="74" r="2.5" />
+                <circle cx="50" cy="72" r="2.5" />
+                <circle cx="70" cy="71" r="2.5" />
+                <circle cx="90" cy="71" r="2.5" />
+                <circle cx="110" cy="71" r="2.5" />
+                <circle cx="130" cy="71" r="2.5" />
+                <circle cx="150" cy="72" r="2.5" />
+                <circle cx="170" cy="74" r="2.5" />
+            </g>
+            {/* Inner Brim Detail */}
+            <path d="M30,76 Q100,58 170,76" fill="none" stroke="white" strokeWidth="1.5" opacity="0.3" strokeDasharray="4 2" />
+        </g>
+
+        {/* BOWTIE - Red with white dots */}
+        <g transform="translate(100, 160)">
+            <path d="M-22,-10 L0,0 L-22,10 Z" fill="#D32F2F" />
+            <path d="M22,-10 L0,0 L22,10 Z" fill="#D32F2F" />
+            <circle cx="0" cy="0" r="6" fill="#B71C1C" />
+            {/* Polka Dots */}
+            <g fill="white" opacity="0.8">
+                <circle cx="-14" cy="-3" r="1.5" />
+                <circle cx="-14" cy="3" r="1.5" />
+                <circle cx="14" cy="-3" r="1.5" />
+                <circle cx="14" cy="3" r="1.5" />
+                <circle cx="0" cy="0" r="1" />
+            </g>
         </g>
       </svg>
     </div>

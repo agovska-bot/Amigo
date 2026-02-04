@@ -47,7 +47,7 @@ const HomeScreen: React.FC = () => {
         
         {/* Brand Section */}
         <div className="flex flex-col items-center justify-center pt-2 mb-4 relative">
-            <div className="animate-float">
+            <div>
                 <AmigoMascot size={220} />
             </div>
             
@@ -118,13 +118,6 @@ const HomeScreen: React.FC = () => {
         </div>
 
       </ScreenWrapper>
-      <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-        .animate-float { animation: float 4s ease-in-out infinite; }
-      `}</style>
     </div>
   );
 };
