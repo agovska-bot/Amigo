@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenAI, Chat } from "@google/genai";
+import { GoogleGenAI, Chat, GenerateContentResponse } from "@google/genai";
 import { useAppContext } from '../context/AppContext';
 import ScreenWrapper from '../components/ScreenWrapper';
 
@@ -51,15 +51,24 @@ const PracticeRoomScreen: React.FC = () => {
 
         const chat = ai.chats.create({
             model: 'gemini-3-flash-preview',
-            config: { systemInstruction, temperature: 0.9 }
+            config: { systemInstruction, temperature: 0.9, thinkingConfig: { thinkingBudget: 0 } }
         });
         
         setActiveSession({ chat, title: categoryName });
         
-        // Initial "Hello" to kick off the AI's scene setting
-        const res = await chat.sendMessage({ message: `Hi Amigo, I'm ready to practice ${categoryName}.` });
-        setMessages([{ role: 'ai', text: res.text || '' }]);
+        // Initial "Hello" to kick off the AI's scene setting via Stream
+        const responseStream = await chat.sendMessageStream({ message: `Hi Amigo, I'm ready to practice ${categoryName}.` });
+        
+        // Add placeholder message
+        setMessages([{ role: 'ai', text: '' }]);
         setShowCustomInput(false);
+
+        let fullText = "";
+        for await (const chunk of responseStream) {
+            const part = chunk as GenerateContentResponse;
+            fullText += part.text || "";
+            setMessages([{ role: 'ai', text: fullText }]);
+        }
     } catch (e) { 
         console.error(e);
         const errorMsg = language === 'mk' 
@@ -78,11 +87,28 @@ const PracticeRoomScreen: React.FC = () => {
     setIsLoading(true);
     
     try {
-      const response = await activeSession.chat.sendMessage({ message: textToSend });
-      setMessages(prev => [...prev, { role: 'ai', text: response.text || '' }]);
+      // Add empty AI response placeholder
+      setMessages(prev => [...prev, { role: 'ai', text: '' }]);
+
+      const responseStream = await activeSession.chat.sendMessageStream({ message: textToSend });
+      let fullText = "";
+      
+      for await (const chunk of responseStream) {
+        const part = chunk as GenerateContentResponse;
+        fullText += part.text || "";
+        setMessages(prev => {
+           const updated = [...prev];
+           updated[updated.length - 1] = { role: 'ai', text: fullText };
+           return updated;
+        });
+      }
     } catch (e) { 
       console.error(e);
-      setMessages(prev => [...prev, { role: 'ai', text: language === 'mk' ? "Се изгуби врската, но тука сум!" : "Connection flicker, but I'm back!" }]);
+      setMessages(prev => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: 'ai', text: language === 'mk' ? "Се изгуби врската, но тука сум!" : "Connection flicker, but I'm back!" };
+          return updated;
+      });
     } finally { setIsLoading(false); }
   };
 
@@ -178,7 +204,7 @@ const PracticeRoomScreen: React.FC = () => {
                 {messages.map((m, i) => (
                     <div key={i} className={`flex ${m.role === 'ai' ? 'justify-start' : 'justify-end'} animate-slideUp`}>
                         <div className={`max-w-[85%] p-5 rounded-[2rem] font-bold text-[16px] leading-snug shadow-sm ${m.role === 'ai' ? 'bg-white text-slate-800 border-2 border-slate-50 rounded-bl-none' : 'bg-slate-900 text-white rounded-br-none'}`}>
-                            {m.text}
+                            {m.text || "..."}
                         </div>
                     </div>
                 ))}

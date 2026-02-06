@@ -7,13 +7,13 @@ import { useTranslation } from '../hooks/useTranslation';
 import { Screen } from '../types';
 
 const MoveScreen: React.FC = () => {
-  const { ageGroup, age, userName, setCurrentScreen } = useAppContext();
+  const { ageGroup, age, userName, setCurrentScreen, prefetchedMission, prefetchMission, isPrefetching } = useAppContext();
   const { language } = useTranslation();
   const [task, setTask] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
 
   const isPro = ageGroup === '12+';
-  const screenTitle = language === 'mk' ? "Херојски Мисии" : "Hero Missions";
+  const screenTitle = language === 'mk' ? "Мисии" : "Hero Missions";
 
   const themes = {
     '10-12': { 
@@ -29,6 +29,12 @@ const MoveScreen: React.FC = () => {
   }[isPro ? '12+' : '10-12'];
 
   const getNewTask = useCallback(async () => {
+      if (prefetchedMission) {
+          setTask(prefetchedMission);
+          setIsLoading(false);
+          return;
+      }
+      
       setIsLoading(true);
       try {
         const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -45,11 +51,16 @@ const MoveScreen: React.FC = () => {
       } finally {
         setIsLoading(false);
       }
-    }, [age, language, userName]);
+    }, [age, language, userName, prefetchedMission]);
 
   useEffect(() => {
     getNewTask();
   }, [getNewTask]);
+
+  const handleAccept = () => {
+      prefetchMission(); // Start fetching the next one for later
+      setCurrentScreen(Screen.Home);
+  };
 
   return (
     <ScreenWrapper title={screenTitle}>
@@ -66,7 +77,7 @@ const MoveScreen: React.FC = () => {
 
         <div className="w-full pt-4 z-10 max-w-sm mx-4">
             <button 
-                onClick={() => setCurrentScreen(Screen.Home)} 
+                onClick={handleAccept} 
                 className={`w-full ${themes.button} text-white font-black py-6 px-4 rounded-[2rem] text-xl transition-all shadow-2xl active:scale-95`}
             >
               {language === 'mk' ? "ПРИФАЌАМ!" : "I ACCEPT!"}

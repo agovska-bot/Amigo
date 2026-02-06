@@ -30,6 +30,9 @@ interface AppContextType {
   dailyPracticeTip: string;
   isPracticeSyncing: boolean;
   refreshPracticeData: () => Promise<void>;
+  prefetchedMission: string | null;
+  prefetchMission: () => Promise<void>;
+  isPrefetching: boolean;
   t: (key: string, fallback?: string) => any;
   resetApp: () => void;
 }
@@ -143,7 +146,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [currentScreen, setCurrentScreen] = useState<Screen>(Screen.Home);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const [practiceScenarios, setPracticeScenarios] = useLocalStorage<PracticeScenario[]>('practiceScenarios', []);
+  const [prefetchedMission, setPrefetchedMission] = useState<string | null>(null);
+  const [isPrefetching, setIsPrefetching] = useState(false);
+  
   const [dailyPracticeTip, setDailyPracticeTip] = useLocalStorage<string>('dailyPracticeTip', '');
   const [isPracticeSyncing, setIsPracticeSyncing] = useState(false);
 
@@ -180,6 +185,32 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     window.localStorage.clear();
     window.location.reload();
   }, []);
+
+  const prefetchMission = useCallback(async () => {
+    if (!userName || !age || !language || isPrefetching) return;
+    setIsPrefetching(true);
+    try {
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const prompt = `You are Amigo. ONE safe social mission for ${userName} (${age}yo). Max 1 short sentence. Language: ${language === 'mk' ? 'Macedonian' : 'English'}. No thinking, just response.`;
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: prompt,
+        config: { temperature: 1.0, thinkingConfig: { thinkingBudget: 0 } }
+      });
+      setPrefetchedMission(response.text?.trim() || null);
+    } catch (error) {
+      console.error("Prefetch failed", error);
+    } finally {
+      setIsPrefetching(false);
+    }
+  }, [userName, age, language, isPrefetching]);
+
+  // Start prefetching missions when on home screen and none are available
+  useEffect(() => {
+    if (userName && age && language && !prefetchedMission && !isPrefetching) {
+        prefetchMission();
+    }
+  }, [userName, age, language, prefetchedMission, isPrefetching, prefetchMission]);
 
   const setActiveTask = useCallback((task: keyof ActiveTasks, value: string | null) => {
     setActiveTasks(prev => ({ ...prev, [task]: value }));
@@ -232,16 +263,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setLanguage,
     activeTasks,
     setActiveTask,
-    practiceScenarios: [], // Not used as predefined list anymore
+    practiceScenarios: [],
     dailyPracticeTip,
     isPracticeSyncing,
     refreshPracticeData,
+    prefetchedMission,
+    prefetchMission,
+    isPrefetching,
     t,
     resetApp
   }), [
     currentScreen, userName, setUserName, toastMessage, showToast, birthDate, setBirthDate, 
     age, ageGroup, language, setLanguage, activeTasks, setActiveTask, 
-    dailyPracticeTip, isPracticeSyncing, refreshPracticeData, t, resetApp
+    dailyPracticeTip, isPracticeSyncing, refreshPracticeData, 
+    prefetchedMission, prefetchMission, isPrefetching, t, resetApp
   ]);
 
   return (
