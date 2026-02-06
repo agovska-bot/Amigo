@@ -36,19 +36,6 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const defaultScenarios: Record<Language, PracticeScenario[]> = {
-  mk: [
-    { title: "Нов пријател", prompt: "Запознај се со некој нов во училиште.", icon: "👫" },
-    { title: "Барање помош", prompt: "Побарај помош од наставник.", icon: "🤝" },
-    { title: "Вклучување во игра", prompt: "Прашај дали можеш да играш.", icon: "⚽" }
-  ],
-  en: [
-    { title: "New Friend", prompt: "Introduce yourself to someone new.", icon: "👫" },
-    { title: "Asking Help", prompt: "Ask a teacher for help.", icon: "🤝" },
-    { title: "Joining a Game", prompt: "Ask to join a game.", icon: "⚽" }
-  ]
-};
-
 const translations: Record<string, any> = {
   en: {
     home: { 
@@ -62,13 +49,21 @@ const translations: Record<string, any> = {
     },
     decoder: { title: "Social Decoder", placeholder: "What happened?", analyze: "Analyze", analyzing: "Thinking...", back: "Back", retry: "Try again." },
     practice: { 
-      title: "Practice Room", 
+      title: "Practice", 
       ai_thinking: "Amigo is thinking...",
       active_status: "Simulation is active",
       end_sim: "End Simulation",
       say_something: "Say something...",
-      select_situation: "SELECT SITUATION",
-      insight_label: "Amigo Insight"
+      select_situation: "What do you want to practice?",
+      insight_label: "Amigo Insight",
+      custom_placeholder: "Tell me what you want to do...",
+      start: "Start",
+      categories: {
+        school: "School",
+        friends: "Friendship",
+        digital: "Digital World",
+        custom: "My Situation"
+      }
     },
     chill: { 
       title: "Chill Zone",
@@ -105,10 +100,18 @@ const translations: Record<string, any> = {
       title: "Вежбање", 
       ai_thinking: "Амиго размислува...",
       active_status: "Симулацијата е активна",
-      end_sim: "Заврши симулација",
+      end_sim: "Заврши",
       say_something: "Кажи нешто...",
-      select_situation: "ИЗБЕРИ СИТУАЦИЈА",
-      insight_label: "Амиго Совет"
+      select_situation: "Што сакаш да вежбаме?",
+      insight_label: "Амиго Совет",
+      custom_placeholder: "Напиши ми што сакаш да направиш...",
+      start: "Започни",
+      categories: {
+        school: "Училиште",
+        friends: "Другарство",
+        digital: "Дигитален свет",
+        custom: "Моја ситуација"
+      }
     },
     chill: { 
       title: "Опуштање",
@@ -143,13 +146,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [practiceScenarios, setPracticeScenarios] = useLocalStorage<PracticeScenario[]>('practiceScenarios', []);
   const [dailyPracticeTip, setDailyPracticeTip] = useLocalStorage<string>('dailyPracticeTip', '');
   const [isPracticeSyncing, setIsPracticeSyncing] = useState(false);
-
-  // Sync scenarios with language whenever language changes
-  useEffect(() => {
-    if (language && practiceScenarios.length === 0) {
-      setPracticeScenarios(defaultScenarios[language]);
-    }
-  }, [language, practiceScenarios.length, setPracticeScenarios]);
 
   const age = useMemo(() => {
     if (!birthDate) return null;
@@ -194,7 +190,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setIsPracticeSyncing(true);
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const prompt = `Generate 6 social scenarios and 1 short tip for ${userName} (${age}yo). Lang: ${language === 'mk' ? 'Macedonian' : 'English'}. JSON only.`;
+      const prompt = `Generate 1 short social tip for ${userName} (${age}yo). Lang: ${language === 'mk' ? 'Macedonian' : 'English'}. JSON only.`;
 
       const res = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
@@ -204,21 +200,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           responseSchema: {
             type: Type.OBJECT,
             properties: { 
-              tip: { type: Type.STRING },
-              scenarios: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    title: { type: Type.STRING },
-                    prompt: { type: Type.STRING },
-                    icon: { type: Type.STRING }
-                  },
-                  required: ["title", "prompt", "icon"]
-                }
-              }
+              tip: { type: Type.STRING }
             },
-            required: ["tip", "scenarios"]
+            required: ["tip"]
           }
         }
       });
@@ -226,14 +210,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const text = res.text?.trim() || '{}';
       const data = JSON.parse(text);
       if (data.tip) setDailyPracticeTip(data.tip);
-      if (data.scenarios) setPracticeScenarios(data.scenarios);
     } catch (error) {
-      console.error("Failed to refresh practice data:", error);
-      showToast("Could not update missions.");
+      console.error("Failed to refresh tip:", error);
     } finally {
       setIsPracticeSyncing(false);
     }
-  }, [userName, age, language, setDailyPracticeTip, setPracticeScenarios, showToast]);
+  }, [userName, age, language, setDailyPracticeTip]);
 
   const value = useMemo(() => ({
     currentScreen,
@@ -250,7 +232,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setLanguage,
     activeTasks,
     setActiveTask,
-    practiceScenarios,
+    practiceScenarios: [], // Not used as predefined list anymore
     dailyPracticeTip,
     isPracticeSyncing,
     refreshPracticeData,
@@ -259,7 +241,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }), [
     currentScreen, userName, setUserName, toastMessage, showToast, birthDate, setBirthDate, 
     age, ageGroup, language, setLanguage, activeTasks, setActiveTask, 
-    practiceScenarios, dailyPracticeTip, isPracticeSyncing, refreshPracticeData, t, resetApp
+    dailyPracticeTip, isPracticeSyncing, refreshPracticeData, t, resetApp
   ]);
 
   return (
