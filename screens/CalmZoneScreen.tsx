@@ -7,6 +7,7 @@ import ScreenWrapper from '../components/ScreenWrapper';
 const CalmZoneScreen: React.FC = () => {
   const { ageGroup, language, t } = useAppContext();
   const [task, setTask] = useState<string>('');
+  const [deepCalibThought, setDeepCalibThought] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [mode, setMode] = useState<'menu' | 'breathe' | 'grounding'>('menu');
 
@@ -14,11 +15,17 @@ const CalmZoneScreen: React.FC = () => {
     setIsLoading(true);
     try {
         const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
-        const prompt = `One minimalist calming sentence for ${ageGroup}yo in ${language === 'mk' ? 'Macedonian' : 'English'}.`;
+        const prompt = `Generate a minimalist calming thought for a ${ageGroup} year old. 
+        Language: ${language === 'mk' ? 'Macedonian' : 'English'}. 
+        STRICT RULES: ONLY output the thought text. NO translations. NO English notes. NO quotes. Max 15 words.`;
+        
         const response = await ai.models.generateContent({
             model: 'gemini-3-flash-preview',
             contents: prompt,
-            config: { temperature: 0.7, thinkingConfig: { thinkingBudget: 0 } }
+            config: { 
+              temperature: 1.0, 
+              thinkingConfig: { thinkingBudget: 0 } 
+            }
         });
         setTask(response.text?.trim() || (language === 'mk' ? "Земи длабок здив и фокусирај се на моментот." : "Take a deep breath and focus on the moment."));
     } catch (e) { 
@@ -28,9 +35,44 @@ const CalmZoneScreen: React.FC = () => {
     }
   }, [ageGroup, language]);
 
+  const getNewDeepCalib = useCallback(async () => {
+    setDeepCalibThought('');
+    try {
+        const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
+        // Added dynamic theme request to ensure variety
+        const themes = ["forest", "ocean", "space", "mountain", "abstract colors", "floating", "desert night"];
+        const randomTheme = themes[Math.floor(Math.random() * themes.length)];
+        
+        const prompt = `Generate a unique, short mental imagery exercise for relaxation centered around the theme of "${randomTheme}" for a ${ageGroup} year old.
+        Language: ${language === 'mk' ? 'Macedonian' : 'English'}.
+        STRICT RULES:
+        1. Max 3 short sentences.
+        2. DO NOT use the "cloud" theme unless specifically asked.
+        3. ONLY output the text in ${language === 'mk' ? 'Macedonian' : 'English'}.
+        4. NO translations or English explanations.`;
+        
+        const response = await ai.models.generateContent({
+            model: 'gemini-3-flash-preview',
+            contents: prompt,
+            config: { 
+              temperature: 1.0, 
+              thinkingConfig: { thinkingBudget: 0 } 
+            }
+        });
+        setDeepCalibThought(response.text?.trim() || (language === 'mk' 
+          ? "Замисли како секоја мисла е само лист што плови по тивка река..." 
+          : "Imagine every thought is just a leaf floating down a quiet river..."));
+    } catch (e) {
+        setDeepCalibThought(language === 'mk' 
+          ? "Фокусирај се на звукот на твојот здив..." 
+          : "Focus on the sound of your breath...");
+    }
+  }, [ageGroup, language]);
+
   useEffect(() => {
     if (mode === 'menu') getNewTask();
-  }, [mode, getNewTask]);
+    if (mode === 'breathe') getNewDeepCalib();
+  }, [mode, getNewTask, getNewDeepCalib]);
 
   if (mode === 'breathe') {
       return (
@@ -41,15 +83,24 @@ const CalmZoneScreen: React.FC = () => {
                       <h2 className="text-2xl font-black text-slate-800 px-6">
                         {language === 'mk' ? "Фокусирај се на ритамот на твоите мисли" : "Focus on the rhythm of your thoughts"}
                       </h2>
-                      <div className="p-8 bg-teal-50 rounded-[2rem] border-2 border-teal-100 italic font-bold text-teal-900 leading-relaxed">
-                        {language === 'mk' 
-                          ? "Замисли како секоја мисла е само облак што поминува низ небото. Не ги запирај, само гледај ги како заминуваат..." 
-                          : "Imagine every thought is just a cloud passing through the sky. Don't stop them, just watch them float away..."}
+                      <div className="p-8 bg-teal-50 rounded-[2rem] border-2 border-teal-100 italic font-bold text-teal-900 leading-relaxed min-h-[180px] flex items-center justify-center">
+                        {deepCalibThought || "..."}
                       </div>
                   </div>
-                  <button onClick={() => setMode('menu')} className="bg-slate-900 text-white px-10 py-5 rounded-3xl font-black uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-transform">
-                      {t('chill.done')}
-                  </button>
+                  <div className="flex flex-col gap-4 w-full px-8">
+                    <button 
+                      onClick={getNewDeepCalib} 
+                      className="w-full bg-teal-500 text-white py-4 rounded-3xl font-black uppercase tracking-widest text-xs shadow-lg active:scale-95 transition-transform"
+                    >
+                        {t('chill.request_new')}
+                    </button>
+                    <button 
+                      onClick={() => setMode('menu')} 
+                      className="w-full bg-slate-900 text-white py-4 rounded-3xl font-black uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-transform"
+                    >
+                        {t('chill.done')}
+                    </button>
+                  </div>
               </div>
           </ScreenWrapper>
       );
@@ -57,7 +108,7 @@ const CalmZoneScreen: React.FC = () => {
 
   if (mode === 'grounding') {
     return (
-        <ScreenWrapper title={language === 'mk' ? "Приземјување" : "Grounding"}>
+        <ScreenWrapper title={t('chill.calibration_label')}>
             <div className="flex flex-col items-start h-full space-y-6 py-4 overflow-y-auto no-scrollbar">
                 <div className="bg-orange-50 p-4 rounded-2xl border border-orange-100 w-full mb-2">
                   <p className="text-xs font-black text-orange-600 uppercase tracking-widest mb-1">{t('chill.grounding_technique')}</p>

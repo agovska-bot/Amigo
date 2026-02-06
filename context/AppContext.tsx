@@ -73,7 +73,7 @@ const translations: Record<string, any> = {
       calibration_label: "Mental Calibration",
       grounding_technique: "5-4-3-2-1 Technique",
       grounding_desc: "Slowly go through these steps to return to the present moment.",
-      request_new: "Request New Frequency",
+      request_new: "New Calibration",
       deep_calib: "Deep Calibration",
       calib_desc: "Focus on rhythm and thoughts",
       better: "I feel better",
@@ -121,7 +121,7 @@ const translations: Record<string, any> = {
       calibration_label: "Ментална Калибрација",
       grounding_technique: "Техника 5-4-3-2-1",
       grounding_desc: "Полека помини низ овие чекори за да се вратиш во сегашноста.",
-      request_new: "Нова фреквенција",
+      request_new: "Нова Калибрација",
       deep_calib: "Длабока Калибрација",
       calib_desc: "Фокус на ритам и мисли",
       better: "Се чувствувам подобро",
@@ -205,7 +205,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   }, [userName, age, language, isPrefetching]);
 
-  // Start prefetching missions when on home screen and none are available
   useEffect(() => {
     if (userName && age && language && !prefetchedMission && !isPrefetching) {
         prefetchMission();
