@@ -95,14 +95,14 @@ const translations: Record<string, any> = {
       tagline: "Од збунетост до разбирање", 
       age_note: "Наменета за возраст 10-16 години, но Амиго е сечиј пријател.",
       decoder: "Декодер", 
-      practice: "Вежбалница", 
+      practice: "Вежбање", 
       chill: "Опуштање", 
       missions: "Мисии", 
       delete_profile: "Избриши профил" 
     },
     decoder: { title: "Социјален Декодер", placeholder: "Што се случи?", analyze: "Анализирај", analyzing: "Размислувам...", back: "Назад", retry: "Пробај пак." },
     practice: { 
-      title: "Вежбалница", 
+      title: "Вежбање", 
       ai_thinking: "Амиго размислува...",
       active_status: "Симулацијата е активна",
       end_sim: "Заврши симулација",
@@ -269,7 +269,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   );
 };
 
-// FIX: Export useAppContext hook so it can be used in other components.
 export const useAppContext = () => {
   const context = useContext(AppContext);
   if (context === undefined) {
