@@ -3,12 +3,12 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { useAppContext } from '../context/AppContext';
 import ScreenWrapper from '../components/ScreenWrapper';
-import { useTranslation } from '../hooks/useTranslation';
 import { Screen } from '../types';
 
 const MoveScreen: React.FC = () => {
-  const { ageGroup, age, userName, setCurrentScreen, prefetchedMission, prefetchMission, isPrefetching } = useAppContext();
-  const { language } = useTranslation();
+  // FIX: Removed prefetchedMission, prefetchMission, and isPrefetching as they do not exist on AppContextType.
+  // We now use language directly from the context instead of useTranslation for consistency.
+  const { ageGroup, age, userName, setCurrentScreen, language } = useAppContext();
   const [task, setTask] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -28,37 +28,40 @@ const MoveScreen: React.FC = () => {
     }
   }[isPro ? '12+' : '10-12'];
 
+  // FIX: Mission fetching logic now relies on local state instead of missing context properties.
   const getNewTask = useCallback(async () => {
-      if (prefetchedMission) {
-          setTask(prefetchedMission);
-          setIsLoading(false);
-          return;
-      }
-      
       setIsLoading(true);
       try {
+        // GUIDELINE: Always create a new GoogleGenAI instance right before making an API call to ensure latest config.
         const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const prompt = `You are Amigo. ONE safe social mission for ${userName} (${age}yo). Max 1 short sentence. Language: ${language === 'mk' ? 'Macedonian' : 'English'}.`;
         
         const response = await ai.models.generateContent({
           model: 'gemini-3-flash-preview',
           contents: prompt,
-          config: { temperature: 1.0, thinkingConfig: { thinkingBudget: 0 } }
+          config: { 
+            temperature: 1.0,
+            thinkingConfig: { thinkingBudget: 0 } 
+          }
         });
-        setTask(response.text?.trim() || (language === 'mk' ? "Поздрави некого денес!" : "Say hi to someone today!"));
+        
+        // GUIDELINE: Use the .text property (not .text()) from the response.
+        const generatedText = response.text?.trim();
+        setTask(generatedText || (language === 'mk' ? "Поздрави некого денес!" : "Say hi to someone today!"));
       } catch (error) {
+        console.error("Failed to generate mission:", error);
         setTask(language === 'mk' ? "Насмевни се денес!" : "Smile today!");
       } finally {
         setIsLoading(false);
       }
-    }, [age, language, userName, prefetchedMission]);
+    }, [age, language, userName]);
 
   useEffect(() => {
     getNewTask();
   }, [getNewTask]);
 
   const handleAccept = () => {
-      prefetchMission(); // Start fetching the next one for later
+      // FIX: Removed call to prefetchMission as it's not defined in the context.
       setCurrentScreen(Screen.Home);
   };
 

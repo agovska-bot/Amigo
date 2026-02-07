@@ -3,7 +3,6 @@ import React from 'react';
 import { useAppContext } from './context/AppContext';
 import { Screen } from './types';
 import HomeScreen from './screens/HomeScreen';
-import MoveScreen from './screens/MoveScreen';
 import CalmZoneScreen from './screens/CalmZoneScreen';
 import SocialDecoderScreen from './screens/SocialDecoderScreen';
 import PracticeRoomScreen from './screens/PracticeRoomScreen';
@@ -24,7 +23,6 @@ const App: React.FC = () => {
       case Screen.SocialDecoder: return <SocialDecoderScreen />;
       case Screen.PracticeRoom: return <PracticeRoomScreen />;
       case Screen.CalmZone: return <CalmZoneScreen />;
-      case Screen.Move: return <MoveScreen />;
       default: return <HomeScreen />;
     }
   };

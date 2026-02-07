@@ -25,14 +25,11 @@ interface AppContextType {
   language: Language | null;
   setLanguage: (language: Language) => void;
   activeTasks: ActiveTasks;
-  setActiveTask: (task: keyof ActiveTasks, value: string | null) => void;
+  setActiveTask: (task: keyof ActiveTasks, value: any) => void;
   practiceScenarios: PracticeScenario[];
   dailyPracticeTip: string;
   isPracticeSyncing: boolean;
   refreshPracticeData: () => Promise<void>;
-  prefetchedMission: string | null;
-  prefetchMission: () => Promise<void>;
-  isPrefetching: boolean;
   t: (key: string, fallback?: string) => any;
   resetApp: () => void;
 }
@@ -47,10 +44,9 @@ const translations: Record<string, any> = {
       decoder: "Why?", 
       practice: "Practice", 
       chill: "Chill", 
-      missions: "Missions", 
       delete_profile: "Delete Profile" 
     },
-    decoder: { title: "Social Decoder", placeholder: "What happened?", analyze: "Analyze", analyzing: "Thinking...", back: "Back", retry: "Try again." },
+    decoder: { title: "Why it happened?", placeholder: "What happened?", analyze: "Analyze", analyzing: "Thinking...", back: "Back", retry: "Try again." },
     practice: { 
       title: "Practice", 
       ai_thinking: "Amigo is thinking...",
@@ -79,13 +75,6 @@ const translations: Record<string, any> = {
       better: "I feel better",
       done: "Done",
       step_label: "Step"
-    },
-    missions: { 
-      title: "Hero Missions", 
-      accept: "I ACCEPT!",
-      thinking: "Amigo is thinking...",
-      footer: "Confidence is your true reward",
-      default_task: "Say hi to someone today!"
     }
   },
   mk: {
@@ -95,10 +84,9 @@ const translations: Record<string, any> = {
       decoder: "Зошто?", 
       practice: "Вежбање", 
       chill: "Опуштање", 
-      missions: "Мисии", 
       delete_profile: "Избриши профил" 
     },
-    decoder: { title: "Социјален Декодер", placeholder: "Што се случи?", analyze: "Анализирај", analyzing: "Размислувам...", back: "Назад", retry: "Пробај пак." },
+    decoder: { title: "Зошто се случи?", placeholder: "Што се случи?", analyze: "Анализирај", analyzing: "Размислувам...", back: "Назад", retry: "Пробај пак." },
     practice: { 
       title: "Вежбање", 
       ai_thinking: "Амиго размислува...",
@@ -127,13 +115,6 @@ const translations: Record<string, any> = {
       better: "Се чувствувам подобро",
       done: "Заврши",
       step_label: "Чекор"
-    },
-    missions: { 
-      title: "Мисии", 
-      accept: "ПРИФАЌАМ!",
-      thinking: "Амиго смислува мисија...",
-      footer: "Самодовербата е твојата вистинска награда",
-      default_task: "Поздрави некого денес!"
     }
   }
 };
@@ -142,13 +123,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [language, setLanguage] = useLocalStorage<Language | null>('language', null);
   const [userName, setUserName] = useLocalStorage<string | null>('userName', null);
   const [birthDate, setBirthDate] = useLocalStorage<string | null>('birthDate', null);
-  const [activeTasks, setActiveTasks] = useLocalStorage<ActiveTasks>('activeTasks', { move: null });
+  const [activeTasks, setActiveTasks] = useLocalStorage<ActiveTasks>('activeTasks', {});
   const [currentScreen, setCurrentScreen] = useState<Screen>(Screen.Home);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const [prefetchedMission, setPrefetchedMission] = useState<string | null>(null);
-  const [isPrefetching, setIsPrefetching] = useState(false);
-  
   const [dailyPracticeTip, setDailyPracticeTip] = useLocalStorage<string>('dailyPracticeTip', '');
   const [isPracticeSyncing, setIsPracticeSyncing] = useState(false);
 
@@ -186,32 +164,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     window.location.reload();
   }, []);
 
-  const prefetchMission = useCallback(async () => {
-    if (!userName || !age || !language || isPrefetching) return;
-    setIsPrefetching(true);
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const prompt = `You are Amigo. ONE safe social mission for ${userName} (${age}yo). Max 1 short sentence. Language: ${language === 'mk' ? 'Macedonian' : 'English'}. No thinking, just response.`;
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt,
-        config: { temperature: 1.0, thinkingConfig: { thinkingBudget: 0 } }
-      });
-      setPrefetchedMission(response.text?.trim() || null);
-    } catch (error) {
-      console.error("Prefetch failed", error);
-    } finally {
-      setIsPrefetching(false);
-    }
-  }, [userName, age, language, isPrefetching]);
-
-  useEffect(() => {
-    if (userName && age && language && !prefetchedMission && !isPrefetching) {
-        prefetchMission();
-    }
-  }, [userName, age, language, prefetchedMission, isPrefetching, prefetchMission]);
-
-  const setActiveTask = useCallback((task: keyof ActiveTasks, value: string | null) => {
+  const setActiveTask = useCallback((task: keyof ActiveTasks, value: any) => {
     setActiveTasks(prev => ({ ...prev, [task]: value }));
   }, [setActiveTasks]);
 
@@ -266,16 +219,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     dailyPracticeTip,
     isPracticeSyncing,
     refreshPracticeData,
-    prefetchedMission,
-    prefetchMission,
-    isPrefetching,
     t,
     resetApp
   }), [
     currentScreen, userName, setUserName, toastMessage, showToast, birthDate, setBirthDate, 
     age, ageGroup, language, setLanguage, activeTasks, setActiveTask, 
-    dailyPracticeTip, isPracticeSyncing, refreshPracticeData, 
-    prefetchedMission, prefetchMission, isPrefetching, t, resetApp
+    dailyPracticeTip, isPracticeSyncing, refreshPracticeData, t, resetApp
   ]);
 
   return (
