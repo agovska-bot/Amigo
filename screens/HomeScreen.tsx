@@ -53,6 +53,7 @@ const HomeScreen: React.FC = () => {
             </p>
         </div>
 
+        {/* 2-column grid: Decoder and Practice on row 1, Chill spanning both columns on row 2 */}
         <div className="grid grid-cols-2 gap-3 sm:gap-6 w-full max-w-[340px] sm:max-w-[480px] mx-auto p-4 sm:p-8 bg-white rounded-[3rem] shadow-2xl shadow-slate-200 border border-slate-50 animate-slideUp">
             <MenuButton 
                 title={t('home.decoder')}
