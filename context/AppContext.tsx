@@ -44,7 +44,7 @@ const translations: Record<string, any> = {
     home: { 
       tagline: "Turning Confusion into Understanding", 
       age_note: "Intended for ages 10-16, but Amigo is everyone's friend.",
-      decoder: "Decoder", 
+      decoder: "Why?", 
       practice: "Practice", 
       chill: "Chill", 
       missions: "Missions", 
@@ -92,7 +92,7 @@ const translations: Record<string, any> = {
     home: { 
       tagline: "Од збунетост до разбирање", 
       age_note: "Наменета за возраст 10-16 години, но Амиго е сечиј пријател.",
-      decoder: "Декодер", 
+      decoder: "Зошто?", 
       practice: "Вежбање", 
       chill: "Опуштање", 
       missions: "Мисии", 
