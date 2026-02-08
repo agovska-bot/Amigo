@@ -1,78 +1,126 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 import { useAppContext } from '../context/AppContext';
 import ScreenWrapper from '../components/ScreenWrapper';
 
 const CalmZoneScreen: React.FC = () => {
-  const { ageGroup, language, t } = useAppContext();
+  const { ageGroup, language, t, showToast } = useAppContext();
   const [task, setTask] = useState<string>('');
   const [deepCalibThought, setDeepCalibThought] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [mode, setMode] = useState<'menu' | 'breathe' | 'grounding'>('menu');
 
   const getNewTask = useCallback(async () => {
+    if (isLoading) return;
     setIsLoading(true);
     try {
-        const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
-        const prompt = `Generate a minimalist calming thought for a ${ageGroup} year old. 
-        Language: ${language === 'mk' ? 'Macedonian' : 'English'}. 
-        STRICT RULES: ONLY output the thought text. NO translations. NO English notes. NO quotes. Max 15 words.`;
+        const apiKey = process.env.API_KEY;
+        if (!apiKey) {
+            console.error("Amigo: API Key is missing in environment.");
+            throw new Error("Missing API Key");
+        }
+
+        const ai = new GoogleGenAI({ apiKey });
+        const prompt = `You are Amigo, a calming social translator. 
+        Generate one short, unique, and minimalist calming thought for a ${ageGroup} year old.
+        Focus on being grounded, safe, and positive.
+        Language: ${language === 'mk' ? 'Macedonian' : 'English'}.
+        Respond strictly in JSON format.`;
         
         const response = await ai.models.generateContent({
             model: 'gemini-3-flash-preview',
-            contents: prompt,
+            contents: [{ parts: [{ text: prompt }] }],
             config: { 
-              temperature: 1.0, 
-              thinkingConfig: { thinkingBudget: 0 } 
+              temperature: 0.8,
+              responseMimeType: "application/json",
+              responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                  thought: { type: Type.STRING, description: "The calming thought text" }
+                },
+                required: ["thought"]
+              }
             }
         });
-        setTask(response.text?.trim() || (language === 'mk' ? "Земи длабок здив и фокусирај се на моментот." : "Take a deep breath and focus on the moment."));
+        
+        const data = JSON.parse(response.text || '{}');
+        if (data.thought) {
+            setTask(data.thought);
+        } else {
+            throw new Error("Invalid response format");
+        }
     } catch (e) { 
-        setTask(language === 'mk' ? "Фокусирај се на сегашниот момент." : "Focus on the present moment."); 
+        console.error("AI Error (CalmTask):", e);
+        // Diversified fallbacks so it doesn't look like a static error
+        const fallbacks = language === 'mk' 
+            ? [
+                "Земи длабок здив и почувствувај го мирот.",
+                "Твојот здив е твоето сидро.",
+                "Тука си, безбеден си и сè ќе биде во ред.",
+                "Замисли си сино небо без ниту еден облак."
+              ]
+            : [
+                "Take a deep breath and feel the peace.",
+                "Your breath is your anchor.",
+                "You are here, you are safe, and you are doing great.",
+                "Imagine a clear blue sky without a single cloud."
+              ];
+        setTask(fallbacks[Math.floor(Math.random() * fallbacks.length)]);
     } finally { 
         setIsLoading(false); 
     }
-  }, [ageGroup, language]);
+  }, [ageGroup, language, isLoading]);
 
   const getNewDeepCalib = useCallback(async () => {
     setDeepCalibThought('');
     try {
-        const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
-        // Added dynamic theme request to ensure variety
+        const apiKey = process.env.API_KEY;
+        if (!apiKey) throw new Error("Missing API Key");
+
+        const ai = new GoogleGenAI({ apiKey });
         const themes = ["forest", "ocean", "space", "mountain", "abstract colors", "floating", "desert night"];
         const randomTheme = themes[Math.floor(Math.random() * themes.length)];
         
-        const prompt = `Generate a unique, short mental imagery exercise for relaxation centered around the theme of "${randomTheme}" for a ${ageGroup} year old.
+        const prompt = `Generate a very short (max 2 sentences) mental imagery exercise for relaxation. 
+        Theme: "${randomTheme}". Target age: ${ageGroup}.
         Language: ${language === 'mk' ? 'Macedonian' : 'English'}.
-        STRICT RULES:
-        1. Max 3 short sentences.
-        2. DO NOT use the "cloud" theme unless specifically asked.
-        3. ONLY output the text in ${language === 'mk' ? 'Macedonian' : 'English'}.
-        4. NO translations or English explanations.`;
+        Respond strictly in JSON format.`;
         
         const response = await ai.models.generateContent({
             model: 'gemini-3-flash-preview',
-            contents: prompt,
+            contents: [{ parts: [{ text: prompt }] }],
             config: { 
-              temperature: 1.0, 
-              thinkingConfig: { thinkingBudget: 0 } 
+              temperature: 1.0,
+              responseMimeType: "application/json",
+              responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                  exercise: { type: Type.STRING, description: "The mental imagery text" }
+                },
+                required: ["exercise"]
+              }
             }
         });
-        setDeepCalibThought(response.text?.trim() || (language === 'mk' 
+
+        const data = JSON.parse(response.text || '{}');
+        setDeepCalibThought(data.exercise || (language === 'mk' 
           ? "Замисли како секоја мисла е само лист што плови по тивка река..." 
           : "Imagine every thought is just a leaf floating down a quiet river..."));
     } catch (e) {
-        setDeepCalibThought(language === 'mk' 
-          ? "Фокусирај се на звукот на твојот здив..." 
-          : "Focus on the sound of your breath...");
+        console.error("AI Error (DeepCalib):", e);
+        const fallbacks = language === 'mk'
+          ? ["Замисли како седиш на топол песок покрај морето.", "Фокусирај се на бавното движење на твојот здив."]
+          : ["Imagine sitting on warm sand by the sea.", "Focus on the slow rhythm of your breath."];
+        setDeepCalibThought(fallbacks[Math.floor(Math.random() * fallbacks.length)]);
     }
   }, [ageGroup, language]);
 
   useEffect(() => {
-    if (mode === 'menu') getNewTask();
-    if (mode === 'breathe') getNewDeepCalib();
-  }, [mode, getNewTask, getNewDeepCalib]);
+    // Only fetch if we don't have a task yet or when explicitly returning to menu
+    if (mode === 'menu' && !task) getNewTask();
+    if (mode === 'breathe' && !deepCalibThought) getNewDeepCalib();
+  }, [mode, getNewTask, getNewDeepCalib, task, deepCalibThought]);
 
   if (mode === 'breathe') {
       return (
@@ -84,7 +132,13 @@ const CalmZoneScreen: React.FC = () => {
                         {language === 'mk' ? "Фокусирај се на ритамот на твоите мисли" : "Focus on the rhythm of your thoughts"}
                       </h2>
                       <div className="p-8 bg-teal-50 rounded-[2rem] border-2 border-teal-100 italic font-bold text-teal-900 leading-relaxed min-h-[180px] flex items-center justify-center">
-                        {deepCalibThought || "..."}
+                        {deepCalibThought || (
+                           <div className="flex gap-1">
+                             <div className="w-2 h-2 bg-teal-400 rounded-full animate-bounce"></div>
+                             <div className="w-2 h-2 bg-teal-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                             <div className="w-2 h-2 bg-teal-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                           </div>
+                        )}
                       </div>
                   </div>
                   <div className="flex flex-col gap-4 w-full px-8">
@@ -148,10 +202,14 @@ const CalmZoneScreen: React.FC = () => {
             <p className="text-emerald-600 font-black uppercase tracking-[0.4em] text-[10px] mb-6">{t('chill.calibration_label')}</p>
             {isLoading ? (
                 <div className="h-20 flex items-center justify-center">
-                    <p className="text-emerald-400 animate-pulse font-black text-2xl">...</p>
+                    <div className="flex gap-1">
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                    </div>
                 </div>
             ) : (
-                <p className="text-2xl font-black text-emerald-900 leading-tight italic">"{task}"</p>
+                <p className="text-2xl font-black text-emerald-900 leading-tight italic">"{task || (language === 'mk' ? 'Земи длабок здив...' : 'Take a deep breath...')}"</p>
             )}
         </div>
         
@@ -174,7 +232,8 @@ const CalmZoneScreen: React.FC = () => {
 
             <button 
                 onClick={getNewTask} 
-                className="w-full py-6 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] bg-slate-50 text-slate-400 border border-slate-100 active:bg-slate-100 transition-colors"
+                disabled={isLoading}
+                className="w-full py-6 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] bg-slate-50 text-slate-400 border border-slate-100 active:bg-slate-100 transition-colors disabled:opacity-50"
             >
                 {t('chill.request_new')}
             </button>

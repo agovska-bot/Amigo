@@ -3,13 +3,14 @@ import React from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Screen } from '../types';
 import ScreenWrapper from '../components/ScreenWrapper';
+import Logo from '../components/Logo';
 
 const MenuButton: React.FC<{ title: string; color: string; onClick: () => void; rounded: string; className?: string }> = ({ title, color, onClick, rounded, className = "" }) => (
     <button 
         onClick={onClick}
-        className={`w-full p-2 sm:p-4 flex flex-col items-center justify-center transition-all active:scale-95 shadow-lg shadow-black/5 ${color} ${rounded} border-4 border-white/40 group overflow-hidden ${className}`}
+        className={`flex flex-col items-center justify-center transition-all active:scale-90 shadow-xl shadow-black/5 ${color} ${rounded} border-4 border-white group overflow-hidden ${className}`}
     >
-        <span className="text-[14px] xs:text-lg sm:text-2xl font-black uppercase tracking-widest text-white text-center leading-tight group-hover:scale-105 transition-transform break-words px-1">
+        <span className="text-[14px] xs:text-lg sm:text-2xl font-black uppercase tracking-widest text-white text-center leading-tight group-hover:scale-110 transition-transform px-4">
             {title}
         </span>
     </button>
@@ -24,13 +25,13 @@ const HomeScreen: React.FC = () => {
       bg: 'bg-[#F8FAFC]',
       decoder: 'bg-[#4FD1C5]', // Soft Teal
       practice: 'bg-[#9F7AEA]', // Soft Lavender
-      chill: 'bg-[#F6AD55]', // Soft Orange/Peach
+      chill: 'bg-yellow-400',  // Vibrant Yellow
     },
     '12+': {
       bg: 'bg-slate-900',
       decoder: 'bg-slate-800',
       practice: 'bg-teal-600',
-      chill: 'bg-emerald-700',
+      chill: 'bg-amber-500',   // Richer Yellow for Pro
     }
   }[isPro ? '12+' : '10-12'];
 
@@ -40,11 +41,15 @@ const HomeScreen: React.FC = () => {
     <div className={`min-h-screen w-full ${themes.bg} transition-colors duration-700`}>
       <ScreenWrapper title="" showBackButton={false}>
         
-        <div className="flex flex-col items-center justify-center pt-8 mb-10 text-center animate-fadeIn">
-            <h1 className="text-7xl font-black tracking-tighter text-slate-900 drop-shadow-sm">
+        <div className="flex flex-col items-center justify-center pt-4 mb-6 text-center animate-fadeIn">
+            {/* New Amigo Robot Logo */}
+            <Logo size={90} className="mb-2" />
+
+            <h1 className="text-6xl font-black tracking-tighter text-slate-900">
                 Amigo
             </h1>
-            <div className="h-1 w-12 bg-teal-400 rounded-full mt-2 mb-4"></div>
+            <div className="h-1 w-12 bg-teal-400 rounded-full mt-1 mb-3"></div>
+            
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 px-4">
                 {tagline}
             </p>
@@ -53,47 +58,65 @@ const HomeScreen: React.FC = () => {
             </p>
         </div>
 
-        {/* 2-column grid: Decoder and Practice on row 1, Chill spanning both columns on row 2 */}
-        <div className="grid grid-cols-2 gap-3 sm:gap-6 w-full max-w-[340px] sm:max-w-[480px] mx-auto p-4 sm:p-8 bg-white rounded-[3rem] shadow-2xl shadow-slate-200 border border-slate-50 animate-slideUp">
-            <MenuButton 
-                title={t('home.decoder')}
-                color={themes.decoder}
-                rounded="rounded-tl-[2.5rem] rounded-br-2xl"
-                onClick={() => setCurrentScreen(Screen.SocialDecoder)}
-                className="aspect-square"
-            />
-            <MenuButton 
-                title={t('home.practice')}
-                color={themes.practice}
-                rounded="rounded-tr-[2.5rem] rounded-bl-2xl"
-                onClick={() => setCurrentScreen(Screen.PracticeRoom)}
-                className="aspect-square"
-            />
+        {/* Smiley Face Layout Composition */}
+        <div className="flex flex-col items-center gap-8 w-full max-w-[340px] mx-auto p-4 animate-slideUp">
+            
+            {/* The "Eyes" */}
+            <div className="flex gap-6 w-full justify-center">
+                <MenuButton 
+                    title={t('home.decoder')}
+                    color={themes.decoder}
+                    rounded="rounded-full"
+                    onClick={() => setCurrentScreen(Screen.SocialDecoder)}
+                    className="w-32 h-32"
+                />
+                <MenuButton 
+                    title={t('home.practice')}
+                    color={themes.practice}
+                    rounded="rounded-full"
+                    onClick={() => setCurrentScreen(Screen.PracticeRoom)}
+                    className="w-32 h-32"
+                />
+            </div>
+
+            {/* The "Mouth" (Smile) */}
             <MenuButton 
                 title={t('home.chill')}
                 color={themes.chill}
-                rounded="rounded-b-[2.5rem] rounded-t-2xl"
+                rounded="rounded-t-[2rem] rounded-b-[6rem]"
                 onClick={() => setCurrentScreen(Screen.CalmZone)}
-                className="col-span-2 py-8 sm:py-12"
+                className="w-full py-10 shadow-yellow-200/20"
             />
         </div>
 
-        <div className="mt-auto flex flex-col items-center gap-2 py-10 text-center">
+        {/* Footer with Author Names and Year */}
+        <div className="mt-auto flex flex-col items-center gap-1 py-8 text-center">
             <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-300">
               by Damjan Agovski & Daijan Selmani
             </p>
             <p className="text-[10px] font-black text-slate-200 uppercase tracking-[0.2em]">
-              ASEF 2026.
+              ASEF 2026
             </p>
             <button 
                 onClick={resetApp}
-                className="mt-6 text-[9px] font-bold uppercase tracking-widest text-slate-300 hover:text-red-400 transition-colors"
+                className="mt-4 text-[9px] font-bold uppercase tracking-widest text-slate-300 hover:text-red-400 transition-colors"
             >
                 {t('home.delete_profile')}
             </button>
         </div>
-
       </ScreenWrapper>
+      <style>{`
+        .animate-slideUp { animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+        .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(40px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 };
