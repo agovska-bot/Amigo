@@ -17,7 +17,7 @@ const MenuButton: React.FC<{ title: string; color: string; onClick: () => void; 
 );
 
 const HomeScreen: React.FC = () => {
-  const { setCurrentScreen, t, ageGroup, resetApp, language } = useAppContext();
+  const { setCurrentScreen, t, ageGroup, resetApp, language, installPrompt, triggerInstall } = useAppContext();
   const isPro = ageGroup === '12+';
 
   const themes = {
@@ -89,8 +89,17 @@ const HomeScreen: React.FC = () => {
             />
         </div>
 
-        {/* Footer with Author Names and Year */}
+        {/* Footer with Author Names, Year and Install Button */}
         <div className="mt-auto flex flex-col items-center gap-1 py-8 text-center">
+            {installPrompt && (
+              <button 
+                onClick={triggerInstall}
+                className="mb-6 bg-slate-900 text-white px-8 py-3 rounded-full font-black text-xs uppercase tracking-widest shadow-lg animate-bounce active:scale-95"
+              >
+                📥 {t('home.install')}
+              </button>
+            )}
+
             <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-300">
               by Damjan Agovski & Daijan Selmani
             </p>

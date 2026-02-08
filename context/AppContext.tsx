@@ -32,6 +32,8 @@ interface AppContextType {
   refreshPracticeData: () => Promise<void>;
   t: (key: string, fallback?: string) => any;
   resetApp: () => void;
+  installPrompt: any;
+  triggerInstall: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -44,7 +46,8 @@ const translations: Record<string, any> = {
       decoder: "Why?", 
       practice: "Practice", 
       chill: "Chill", 
-      delete_profile: "Delete Profile" 
+      delete_profile: "Delete Profile",
+      install: "Install Amigo"
     },
     decoder: { title: "Why it happened?", placeholder: "What happened?", analyze: "Analyze", analyzing: "Thinking...", back: "Back", retry: "Try again." },
     practice: { 
@@ -84,7 +87,8 @@ const translations: Record<string, any> = {
       decoder: "Зошто?", 
       practice: "Вежбање", 
       chill: "Опуштање", 
-      delete_profile: "Избриши профил" 
+      delete_profile: "Избриши профил",
+      install: "Инсталирај Amigo"
     },
     decoder: { title: "Зошто се случи?", placeholder: "Што се случи?", analyze: "Анализирај", analyzing: "Размислувам...", back: "Назад", retry: "Пробај пак." },
     practice: { 
@@ -126,9 +130,28 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [activeTasks, setActiveTasks] = useLocalStorage<ActiveTasks>('activeTasks', {});
   const [currentScreen, setCurrentScreen] = useState<Screen>(Screen.Home);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
 
   const [dailyPracticeTip, setDailyPracticeTip] = useLocalStorage<string>('dailyPracticeTip', '');
   const [isPracticeSyncing, setIsPracticeSyncing] = useState(false);
+
+  useEffect(() => {
+    const handler = (e: any) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const triggerInstall = useCallback(async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setInstallPrompt(null);
+    }
+  }, [installPrompt]);
 
   const age = useMemo(() => {
     if (!birthDate) return null;
@@ -220,11 +243,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     isPracticeSyncing,
     refreshPracticeData,
     t,
-    resetApp
+    resetApp,
+    installPrompt,
+    triggerInstall
   }), [
     currentScreen, userName, setUserName, toastMessage, showToast, birthDate, setBirthDate, 
     age, ageGroup, language, setLanguage, activeTasks, setActiveTask, 
-    dailyPracticeTip, isPracticeSyncing, refreshPracticeData, t, resetApp
+    dailyPracticeTip, isPracticeSyncing, refreshPracticeData, t, resetApp, installPrompt, triggerInstall
   ]);
 
   return (
