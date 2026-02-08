@@ -72,7 +72,7 @@ const WelcomeScreen: React.FC = () => {
                         </h2>
                     </div>
                     <p className="text-[12px] font-bold text-slate-400 px-6 italic leading-relaxed text-center">
-                        {isMk ? 'Твојот личен преведувач на социјални ситуации. Како се викаш?' : 'Your personal social translator. What is your name?'}
+                        {isMk ? 'Наменета за возраст 10-16 години, но Амиго е сечиј пријател.' : "Intended for ages 10-16, but Amigo is everyone's friend."}
                     </p>
                 </div>
 

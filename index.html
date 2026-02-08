@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Amigo | Social Translator</title>
 
-    <!-- App Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='25' fill='%2314b8a6'/><circle cx='35' cy='45' r='8' fill='%23facc15'/><circle cx='65' cy='45' r='8' fill='%23facc15'/><path d='M35 65C35 65 40 75 50 75C60 75 65 65 65 65' stroke='%23facc15' stroke-width='6' stroke-linecap='round'/></svg>">
+    <!-- App Favicon: Simplified version of the Logo.tsx robot -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect x='65' y='20' width='10' height='30' rx='5' fill='%230D9488'/><rect x='125' y='20' width='10' height='30' rx='5' fill='%230D9488'/><circle cx='70' cy='20' r='12' fill='%23FACC15'/><circle cx='130' cy='20' r='12' fill='%23FACC15'/><rect x='40' y='45' width='120' height='110' rx='40' fill='%2314B8A6'/><circle cx='75' cy='85' r='14' fill='%23FACC15'/><circle cx='125' cy='85' r='14' fill='%23FACC15'/><path d='M75 115C75 115 85 130 100 130C115 130 125 115 125 115' stroke='%23FACC15' stroke-width='10' stroke-linecap='round' fill='none'/></svg>">
 
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="manifest.json" />
@@ -23,6 +23,47 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     
+    <style>
+      body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background-color: #f8fafc;
+        overflow: hidden;
+      }
+      #loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8fafc;
+        z-index: 9999;
+        transition: opacity 0.5s ease;
+      }
+      .loader-logo {
+        width: 120px;
+        height: 120px;
+        animation: pulse 2s infinite ease-in-out;
+      }
+      .loader-text {
+        margin-top: 20px;
+        font-family: 'Nunito', sans-serif;
+        font-weight: 900;
+        color: #1e293b;
+        font-size: 24px;
+        letter-spacing: -0.05em;
+      }
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+      }
+    </style>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -50,7 +91,38 @@
 </script>
 </head>
   <body>
+    <!-- Initial Loading Screen -->
+    <div id="loading-screen">
+      <div class="loader-logo">
+        <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="65" y="20" width="10" height="30" rx="5" fill="#0D9488" />
+          <rect x="125" y="20" width="10" height="30" rx="5" fill="#0D9488" />
+          <circle cx="70" cy="20" r="12" fill="#FACC15" />
+          <circle cx="130" cy="20" r="12" fill="#FACC15" />
+          <rect x="40" y="45" width="120" height="110" rx="40" fill="#14B8A6" />
+          <rect x="55" y="60" width="90" height="80" rx="25" fill="#0F766E" opacity="0.2" />
+          <circle cx="75" cy="85" r="14" fill="#FACC15" />
+          <circle cx="125" cy="85" r="14" fill="#FACC15" />
+          <path d="M75 115C75 115 85 130 100 130C115 130 125 115 125 115" stroke="#FACC15" stroke-width="10" stroke-linecap="round" />
+        </svg>
+      </div>
+      <div class="loader-text">Amigo</div>
+    </div>
+
     <div id="root"></div>
+
     <script type="module" src="index.tsx"></script>
+    <script>
+      // Remove loading screen after React mounts
+      window.addEventListener('load', () => {
+        const loader = document.getElementById('loading-screen');
+        if (loader) {
+          setTimeout(() => {
+            loader.style.opacity = '0';
+            setTimeout(() => loader.remove(), 500);
+          }, 300);
+        }
+      });
+    </script>
   </body>
 </html>
