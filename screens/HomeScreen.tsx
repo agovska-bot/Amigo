@@ -89,17 +89,21 @@ const HomeScreen: React.FC = () => {
             />
         </div>
 
-        {/* Footer with Author Names, Year and Install Button */}
-        <div className="mt-auto flex flex-col items-center gap-1 py-8 text-center">
-            {installPrompt && (
-              <button 
-                onClick={triggerInstall}
-                className="mb-6 bg-slate-900 text-white px-8 py-3 rounded-full font-black text-xs uppercase tracking-widest shadow-lg animate-bounce active:scale-95"
-              >
-                📥 {t('home.install')}
-              </button>
-            )}
+        {/* Install Button Section - Only shown when installable and on this screen */}
+        {installPrompt && (
+          <div className="mt-8 mb-4 px-4 w-full flex justify-center animate-fadeIn">
+            <button 
+              onClick={triggerInstall}
+              className="bg-slate-900 text-white px-10 py-4 rounded-full font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-slate-800 active:scale-95 transition-all flex items-center gap-3 border-2 border-white/10"
+            >
+              <span className="text-lg">📥</span>
+              {t('home.install')}
+            </button>
+          </div>
+        )}
 
+        {/* Footer with Author Names and Year */}
+        <div className="mt-auto flex flex-col items-center gap-1 py-8 text-center border-t border-slate-50/10">
             <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-300">
               by Damjan Agovski & Daijan Selmani
             </p>
@@ -108,7 +112,7 @@ const HomeScreen: React.FC = () => {
             </p>
             <button 
                 onClick={resetApp}
-                className="mt-4 text-[9px] font-bold uppercase tracking-widest text-slate-300 hover:text-red-400 transition-colors"
+                className="mt-6 text-[9px] font-bold uppercase tracking-widest text-slate-300 hover:text-red-400 transition-colors"
             >
                 {t('home.delete_profile')}
             </button>

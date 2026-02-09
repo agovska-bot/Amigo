@@ -33,7 +33,7 @@ interface AppContextType {
   t: (key: string, fallback?: string) => any;
   resetApp: () => void;
   installPrompt: any;
-  triggerInstall: () => void;
+  triggerInstall: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -49,7 +49,7 @@ const translations: Record<string, any> = {
       delete_profile: "Delete Profile",
       install: "Install Amigo"
     },
-    decoder: { title: "Why it happened?", placeholder: "What happened?", analyze: "Analyze", analyzing: "Thinking...", back: "Back", retry: "Try again." },
+    decoder: { title: "Why it happened?", placeholder: "What happened? Describe the situation...", analyze: "Analyze", analyzing: "Thinking...", back: "Back", retry: "Try again." },
     practice: { 
       title: "Practice", 
       ai_thinking: "Amigo is thinking...",
@@ -90,7 +90,7 @@ const translations: Record<string, any> = {
       delete_profile: "Избриши профил",
       install: "Инсталирај Amigo"
     },
-    decoder: { title: "Зошто се случи?", placeholder: "Што се случи?", analyze: "Анализирај", analyzing: "Размислувам...", back: "Назад", retry: "Пробај пак." },
+    decoder: { title: "Зошто се случи?", placeholder: "Што се случи? Опиши ја ситуацијата...", analyze: "Анализирај", analyzing: "Размислувам...", back: "Назад", retry: "Пробај пак." },
     practice: { 
       title: "Вежбање", 
       ai_thinking: "Амиго размислува...",
