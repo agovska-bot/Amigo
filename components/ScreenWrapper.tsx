@@ -16,13 +16,13 @@ const ScreenWrapper: React.FC<ScreenWrapperProps> = ({ children, title, showBack
   return (
     <div className="flex flex-col items-center justify-start min-h-screen w-full p-4 sm:p-6 relative overflow-x-hidden">
       <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl shadow-teal-900/10 flex flex-col min-h-[90vh] sm:min-h-[85vh] relative z-10 overflow-hidden border border-white">
-        <main className="flex-grow p-6 sm:p-8 flex flex-col">
+        <main className="flex-grow flex flex-col min-h-0">
           {title && (
-            <header className="relative flex items-center justify-center mb-8">
+            <header className="relative flex items-center justify-center p-6 sm:p-8 pb-0">
               {showBackButton && (
                 <button
                   onClick={() => setCurrentScreen(Screen.Home)}
-                  className="absolute left-0 w-10 h-10 flex items-center justify-center bg-teal-50 rounded-full text-teal-700 hover:text-teal-900 text-2xl transition-all active:scale-90"
+                  className="absolute left-6 sm:left-8 w-10 h-10 flex items-center justify-center bg-teal-50 rounded-full text-teal-700 hover:text-teal-900 text-2xl transition-all active:scale-90"
                   aria-label="Back to Home"
                 >
                   ‹
@@ -33,7 +33,7 @@ const ScreenWrapper: React.FC<ScreenWrapperProps> = ({ children, title, showBack
               </h1>
             </header>
           )}
-          <div className="flex-grow flex flex-col relative">
+          <div className="flex-grow flex flex-col relative overflow-y-auto px-6 sm:px-8 pb-6 sm:pb-8 pt-4 no-scrollbar">
             {children}
           </div>
         </main>
@@ -43,6 +43,10 @@ const ScreenWrapper: React.FC<ScreenWrapperProps> = ({ children, title, showBack
           </footer>
         )}
       </div>
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
     </div>
   );
 };

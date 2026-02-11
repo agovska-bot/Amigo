@@ -41,41 +41,41 @@ const HomeScreen: React.FC = () => {
     <div className={`min-h-screen w-full ${themes.bg} transition-colors duration-700`}>
       <ScreenWrapper title="" showBackButton={false}>
         
-        <div className="flex flex-col items-center justify-center pt-4 mb-6 text-center animate-fadeIn">
+        <div className="flex flex-col items-center justify-center pt-2 mb-4 text-center animate-fadeIn">
             {/* New Amigo Robot Logo */}
-            <Logo size={90} className="mb-2" />
+            <Logo size={80} className="mb-2" />
 
-            <h1 className="text-6xl font-black tracking-tighter text-slate-900">
+            <h1 className="text-5xl font-black tracking-tighter text-slate-900">
                 Amigo
             </h1>
-            <div className="h-1 w-12 bg-teal-400 rounded-full mt-1 mb-3"></div>
+            <div className="h-1 w-12 bg-teal-400 rounded-full mt-1 mb-2"></div>
             
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 px-4">
                 {tagline}
             </p>
-            <p className="text-[10px] font-bold text-slate-300 mt-2 px-8 italic leading-tight max-w-[280px]">
+            <p className="text-[9px] font-bold text-slate-300 mt-2 px-8 italic leading-tight max-w-[280px]">
                 {t('home.age_note')}
             </p>
         </div>
 
         {/* Smiley Face Layout Composition */}
-        <div className="flex flex-col items-center gap-8 w-full max-w-[340px] mx-auto p-4 animate-slideUp">
+        <div className="flex flex-col items-center gap-6 w-full max-w-[340px] mx-auto animate-slideUp">
             
             {/* The "Eyes" */}
-            <div className="flex gap-6 w-full justify-center">
+            <div className="flex gap-4 w-full justify-center">
                 <MenuButton 
                     title={t('home.decoder')}
                     color={themes.decoder}
                     rounded="rounded-full"
                     onClick={() => setCurrentScreen(Screen.SocialDecoder)}
-                    className="w-32 h-32"
+                    className="w-28 h-28 sm:w-32 sm:h-32"
                 />
                 <MenuButton 
                     title={t('home.practice')}
                     color={themes.practice}
                     rounded="rounded-full"
                     onClick={() => setCurrentScreen(Screen.PracticeRoom)}
-                    className="w-32 h-32"
+                    className="w-28 h-28 sm:w-32 sm:h-32"
                 />
             </div>
 
@@ -83,36 +83,36 @@ const HomeScreen: React.FC = () => {
             <MenuButton 
                 title={t('home.chill')}
                 color={themes.chill}
-                rounded="rounded-t-[2rem] rounded-b-[6rem]"
+                rounded="rounded-t-[2rem] rounded-b-[5rem]"
                 onClick={() => setCurrentScreen(Screen.CalmZone)}
-                className="w-full py-10 shadow-yellow-200/20"
+                className="w-full py-8 sm:py-10 shadow-yellow-200/20"
             />
         </div>
 
-        {/* Install Button Section - Only shown when installable and on this screen */}
+        {/* Install Button Section - Adjusted margins to avoid crowding footer */}
         {installPrompt && (
-          <div className="mt-8 mb-4 px-4 w-full flex justify-center animate-fadeIn">
+          <div className="mt-6 mb-2 px-4 w-full flex justify-center animate-fadeIn">
             <button 
               onClick={triggerInstall}
-              className="bg-slate-900 text-white px-10 py-4 rounded-full font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-slate-800 active:scale-95 transition-all flex items-center gap-3 border-2 border-white/10"
+              className="bg-slate-900 text-white px-8 py-3 rounded-full font-black text-[10px] uppercase tracking-[0.2em] shadow-lg hover:bg-slate-800 active:scale-95 transition-all flex items-center gap-2 border border-white/10"
             >
-              <span className="text-lg">📥</span>
+              <span className="text-base">📥</span>
               {t('home.install')}
             </button>
           </div>
         )}
 
-        {/* Footer with Author Names and Year */}
-        <div className="mt-auto flex flex-col items-center gap-1 py-8 text-center border-t border-slate-50/10">
-            <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-300">
+        {/* Footer with Author Names and Year - mt-auto ensures it sits at the bottom */}
+        <div className="mt-auto flex flex-col items-center gap-1 pt-8 pb-2 text-center border-t border-slate-50/10">
+            <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em] text-slate-300">
               by Damjan Agovski & Daijan Selmani
             </p>
-            <p className="text-[10px] font-black text-slate-200 uppercase tracking-[0.2em]">
+            <p className="text-[9px] sm:text-[10px] font-black text-slate-200 uppercase tracking-[0.15em]">
               ASEF 2026
             </p>
             <button 
                 onClick={resetApp}
-                className="mt-6 text-[9px] font-bold uppercase tracking-widest text-slate-300 hover:text-red-400 transition-colors"
+                className="mt-4 text-[9px] font-bold uppercase tracking-widest text-slate-300 hover:text-red-400 transition-colors"
             >
                 {t('home.delete_profile')}
             </button>
