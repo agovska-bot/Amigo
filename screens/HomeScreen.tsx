@@ -41,6 +41,7 @@ const HomeScreen: React.FC = () => {
     <div className={`min-h-screen w-full ${themes.bg} transition-colors duration-700`}>
       <ScreenWrapper title="" showBackButton={false}>
         
+        {/* Header Section */}
         <div className="flex flex-col items-center justify-center pt-2 mb-4 text-center animate-fadeIn">
             {/* New Amigo Robot Logo */}
             <Logo size={80} className="mb-2" />
@@ -89,33 +90,36 @@ const HomeScreen: React.FC = () => {
             />
         </div>
 
-        {/* Install Button Section - Adjusted margins to avoid crowding footer */}
-        {installPrompt && (
-          <div className="mt-6 mb-2 px-4 w-full flex justify-center animate-fadeIn">
-            <button 
-              onClick={triggerInstall}
-              className="bg-slate-900 text-white px-8 py-3 rounded-full font-black text-[10px] uppercase tracking-[0.2em] shadow-lg hover:bg-slate-800 active:scale-95 transition-all flex items-center gap-2 border border-white/10"
-            >
-              <span className="text-base">📥</span>
-              {t('home.install')}
-            </button>
-          </div>
-        )}
+        {/* Bottom Section - Pushed to end of container */}
+        <div className="mt-auto pt-8 flex flex-col items-center w-full">
+            {/* Install Button Section - Now placed immediately above footer text */}
+            {installPrompt && (
+              <div className="mb-6 px-4 w-full flex justify-center animate-fadeIn">
+                <button 
+                  onClick={triggerInstall}
+                  className="bg-slate-900 text-white px-8 py-3 rounded-full font-black text-[10px] uppercase tracking-[0.2em] shadow-lg hover:bg-slate-800 active:scale-95 transition-all flex items-center gap-2 border border-white/10"
+                >
+                  <span className="text-base">📥</span>
+                  {t('home.install')}
+                </button>
+              </div>
+            )}
 
-        {/* Footer with Author Names and Year - mt-auto ensures it sits at the bottom */}
-        <div className="mt-auto flex flex-col items-center gap-1 pt-8 pb-2 text-center border-t border-slate-50/10">
-            <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em] text-slate-300">
-              by Damjan Agovski & Daijan Selmani
-            </p>
-            <p className="text-[9px] sm:text-[10px] font-black text-slate-200 uppercase tracking-[0.15em]">
-              ASEF 2026
-            </p>
-            <button 
-                onClick={resetApp}
-                className="mt-4 text-[9px] font-bold uppercase tracking-widest text-slate-300 hover:text-red-400 transition-colors"
-            >
-                {t('home.delete_profile')}
-            </button>
+            {/* Footer with Author Names and Year */}
+            <div className="flex flex-col items-center gap-1 pb-2 text-center border-t border-slate-50/10 w-full pt-4">
+                <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.3em] text-slate-300">
+                  by Damjan Agovski & Daijan Selmani
+                </p>
+                <p className="text-[9px] sm:text-[10px] font-black text-slate-200 uppercase tracking-[0.15em]">
+                  ASEF 2026
+                </p>
+                <button 
+                    onClick={resetApp}
+                    className="mt-4 text-[9px] font-bold uppercase tracking-widest text-slate-300 hover:text-red-400 transition-colors"
+                >
+                    {t('home.delete_profile')}
+                </button>
+            </div>
         </div>
       </ScreenWrapper>
       <style>{`
